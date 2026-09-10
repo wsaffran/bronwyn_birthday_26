@@ -84,6 +84,7 @@
 .day-trail {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   flex-shrink: 0;
   min-width: 0;
@@ -107,7 +108,7 @@
 }
 
 .day-trail-fade {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   --fade-left: 0px;
   --fade-right: 0px;

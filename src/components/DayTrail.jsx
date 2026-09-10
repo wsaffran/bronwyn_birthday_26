@@ -60,7 +60,6 @@ export default function DayTrail() {
     isHome,
     isUnlocked,
     canAttempt,
-    hasUnlocked,
     selectDay,
     selectHome,
   } = useProgress()
@@ -103,9 +102,7 @@ export default function DayTrail() {
       observer.disconnect()
       scroller.removeEventListener('scroll', syncFades)
     }
-  }, [focusId, hasUnlocked])
-
-  if (!hasUnlocked) return null
+  }, [focusId])
 
   return (
     <nav className="day-trail" aria-label="Days">
