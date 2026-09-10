@@ -6,7 +6,7 @@ function MusicGift({ day }) {
   return (
     <>
       <p className="lede">
-        Press play whenever you want a little soundtrack for the day.
+        Press play to listen to the playlist.
       </p>
       <div className="embed-frame">
         <iframe

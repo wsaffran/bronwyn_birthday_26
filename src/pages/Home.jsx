@@ -1,30 +1,38 @@
+import { HAPPY_BIRTHDAY } from '../constants'
 import { days } from '../days'
 import { useProgress } from '../progress'
+
+const letteringSrc = `${import.meta.env.BASE_URL}chiaki-lettering-white.png`
+
+function HomeHeading() {
+  return (
+    <div className="home-hero">
+      <img
+        className="home-lettering"
+        src={letteringSrc}
+        alt=""
+        aria-hidden="true"
+      />
+      <h1>{HAPPY_BIRTHDAY}</h1>
+    </div>
+  )
+}
 
 export default function Home() {
   const { allUnlocked, hasUnlocked, isUnlocked, nextDay, selectDay } =
     useProgress()
+  const showRevisit = allUnlocked || !nextDay
+  const lede = !hasUnlocked
+    ? 'A new gift unlocks each day. Start with day one when you have your clue.'
+    : showRevisit
+      ? 'Every gift is open. Pick a day to revisit.'
+      : "Come back with today's clue when you are ready."
 
-  if (!hasUnlocked) {
-    return (
-      <main className="page">
-        <h1>Happy Birthday, Bronwyn</h1>
-        <p className="lede">
-          A new gift unlocks each day. Start with day one when you have your
-          clue.
-        </p>
-        <button type="button" onClick={() => selectDay(1)}>
-          Start with day 1
-        </button>
-      </main>
-    )
-  }
-
-  if (allUnlocked || !nextDay) {
-    return (
-      <main className="page">
-        <h1>Happy Birthday, Bronwyn</h1>
-        <p className="lede">Every gift is open. Pick a day to revisit.</p>
+  return (
+    <main className="page page-home">
+      <HomeHeading />
+      <p className="lede">{lede}</p>
+      {showRevisit ? (
         <ul className="revisit-list">
           {days
             .filter((day) => isUnlocked(day.id))
@@ -37,19 +45,11 @@ export default function Home() {
               </li>
             ))}
         </ul>
-      </main>
-    )
-  }
-
-  return (
-    <main className="page">
-      <h1>Happy Birthday, Bronwyn</h1>
-      <p className="lede">
-        Come back with today&apos;s clue when you are ready.
-      </p>
-      <button type="button" onClick={() => selectDay(nextDay.id)}>
-        Continue with {nextDay.label}
-      </button>
+      ) : (
+        <button type="button" onClick={() => selectDay(nextDay.id)}>
+          {hasUnlocked ? `Continue with ${nextDay.label}` : 'Start with day 1'}
+        </button>
+      )}
     </main>
   )
 }
