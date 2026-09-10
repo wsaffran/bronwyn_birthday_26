@@ -29,7 +29,7 @@ function MusicGift({ day }) {
 function PlaceholderGift({ day }) {
   return (
     <p className="lede">
-      This is {day.label} for now. The real surprise will land here soon.
+      This is {day.label} for now.
     </p>
   )
 }
@@ -63,9 +63,9 @@ export default function Day() {
   if (!canAttempt(day.id)) {
     return (
       <main className="page">
-        <h1>This gift is still locked</h1>
+        <h1>Nice try!</h1>
         <p className="lede">
-          The days unlock in order. Come back after you open the earlier gifts.
+          I'm sorry Bronwyn, but you are not allowed to open this gift yet. 
         </p>
         <button type="button" onClick={selectHome}>
           Home
@@ -87,7 +87,7 @@ export default function Day() {
     <main className="page">
       <h1>Unlock {day.label}</h1>
       <p className="lede">
-        Enter the password from your clue to open today&apos;s surprise.
+        Enter the password from your clue to unlock.
       </p>
       <form className="lock-form" onSubmit={handleSubmit}>
         <label htmlFor={`${day.slug}-password`}>Password</label>

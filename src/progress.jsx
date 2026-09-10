@@ -1,10 +1,11 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { days, getDay } from './days'
 
 const COOKIE_NAME = 'bronwyn-days-unlocked'
 const LEGACY_MUSIC_KEY = 'gift-unlocked-music'
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 400
 const HOME = 'home'
+const DAY_PARAM = 'day'
 
 const ProgressContext = createContext(null)
 
@@ -44,13 +45,37 @@ function canAttemptDay(unlocked, id) {
   return id === 1 || unlocked.includes(id - 1)
 }
 
+function parseDayParam(raw) {
+  if (raw == null || raw === '') return HOME
+  const id = Number(raw)
+  return Number.isInteger(id) && getDay(id) ? id : HOME
+}
+
+function readSelectedFromUrl() {
+  return parseDayParam(new URLSearchParams(window.location.search).get(DAY_PARAM))
+}
+
+function syncUrl(selected) {
+  const url = new URL(window.location.href)
+  if (selected === HOME) url.searchParams.delete(DAY_PARAM)
+  else url.searchParams.set(DAY_PARAM, String(selected))
+
+  const next = `${url.pathname}${url.search}${url.hash}`
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
+  if (next !== current) window.history.replaceState(null, '', next)
+}
+
 export function ProgressProvider({ children }) {
   const [unlocked, setUnlocked] = useState(() => {
     const ids = readUnlockedDays()
     if (ids.length) persistUnlockedDays(ids)
     return ids
   })
-  const [selected, setSelected] = useState(HOME)
+  const [selected, setSelected] = useState(readSelectedFromUrl)
+
+  useEffect(() => {
+    syncUrl(selected)
+  }, [selected])
 
   const value = useMemo(() => {
     const highest = unlocked.at(-1) ?? 0

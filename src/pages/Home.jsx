@@ -25,7 +25,7 @@ export default function Home() {
     ? 'A new gift unlocks each day. Start with day one when you have your clue.'
     : showRevisit
       ? 'Every gift is open. Pick a day to revisit.'
-      : "Come back with today's clue when you are ready."
+      : "Come back after you open today's envelope."
 
   return (
     <main className="page page-home">

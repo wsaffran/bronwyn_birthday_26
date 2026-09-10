@@ -36,7 +36,7 @@ export default function CountdownBanner() {
             <span className="countdown-sep">:</span>
             <span className="countdown-digits">{pad(seconds)}</span>
           </p>
-          <p className="countdown-caption">until Bronwyn's birthday</p>
+          <p className="countdown-caption">Bronwyn's birthday countdown</p>
         </>
       )}
     </div>
