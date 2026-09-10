@@ -3,6 +3,7 @@ import { days } from '../days'
 import { useProgress } from '../progress'
 
 const letteringSrc = `${import.meta.env.BASE_URL}chiaki-lettering-white.png`
+const floralSrc = `${import.meta.env.BASE_URL}floral-linework-white.png`
 
 function HomeHeading() {
   return (
@@ -28,27 +29,34 @@ export default function Home() {
       : "Come back after you open today's envelope."
 
   return (
-    <main className="page page-home">
-      <HomeHeading />
-      <p className="lede">{lede}</p>
-      {showRevisit ? (
-        <ul className="revisit-list">
-          {days
-            .filter((day) => isUnlocked(day.id))
-            .map((day) => (
-              <li key={day.id}>
-                <button type="button" onClick={() => selectDay(day.id)}>
-                  <span>{day.label}</span>
-                  <span className="revisit-title">{day.title}</span>
-                </button>
-              </li>
-            ))}
-        </ul>
-      ) : (
-        <button type="button" onClick={() => selectDay(nextDay.id)}>
-          {hasUnlocked ? `Continue with ${nextDay.label}` : 'Start with day 1'}
-        </button>
-      )}
-    </main>
+    <>
+      <div
+        className="home-floral"
+        style={{ '--floral-src': `url("${floralSrc}")` }}
+        aria-hidden="true"
+      />
+      <main className="page page-home">
+        <HomeHeading />
+        <p className="lede">{lede}</p>
+        {showRevisit ? (
+          <ul className="revisit-list">
+            {days
+              .filter((day) => isUnlocked(day.id))
+              .map((day) => (
+                <li key={day.id}>
+                  <button type="button" onClick={() => selectDay(day.id)}>
+                    <span>{day.label}</span>
+                    <span className="revisit-title">{day.title}</span>
+                  </button>
+                </li>
+              ))}
+          </ul>
+        ) : (
+          <button type="button" onClick={() => selectDay(nextDay.id)}>
+            {hasUnlocked ? `Continue with ${nextDay.label}` : 'Start with day 1'}
+          </button>
+        )}
+      </main>
+    </>
   )
 }

@@ -8,6 +8,57 @@
   padding-left: env(safe-area-inset-left);
 }
 
+.home-floral {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 40%) 0%,
+    rgb(0 0 0 / 52%) 18%,
+    rgb(0 0 0 / 70%) 36%,
+    rgb(0 0 0 / 90%) 52%,
+    #000 62%,
+    rgb(0 0 0 / 70%) 78%,
+    rgb(0 0 0 / 38%) 90%,
+    rgb(0 0 0 / 22%) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 40%) 0%,
+    rgb(0 0 0 / 52%) 18%,
+    rgb(0 0 0 / 70%) 36%,
+    rgb(0 0 0 / 90%) 52%,
+    #000 62%,
+    rgb(0 0 0 / 70%) 78%,
+    rgb(0 0 0 / 38%) 90%,
+    rgb(0 0 0 / 22%) 100%
+  );
+}
+
+.home-floral::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: #2a2a2a;
+  -webkit-mask-image: var(--floral-src);
+  mask-image: var(--floral-src);
+  -webkit-mask-size: 100% auto;
+  mask-size: 100% auto;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: bottom center;
+  mask-position: bottom center;
+}
+
+.countdown-banner,
+.page,
+.day-trail {
+  position: relative;
+  z-index: 1;
+}
+
 .countdown-banner {
   flex-shrink: 0;
   display: flex;
