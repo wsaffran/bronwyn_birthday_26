@@ -4,9 +4,50 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding-top: env(safe-area-inset-top);
   padding-right: env(safe-area-inset-right);
   padding-left: env(safe-area-inset-left);
+}
+
+.countdown-banner {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0.55rem 0.75rem 0.5rem;
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  background: #000;
+}
+
+.countdown-clock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  margin: 0;
+  font-family: 'Share Tech Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: clamp(1.4rem, 6.4vw, 2.05rem);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: #ff1a1a;
+}
+
+.countdown-clock-done {
+  letter-spacing: 0.18em;
+}
+
+.countdown-digits {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.countdown-caption {
+  margin: 0.35rem 0 0;
+  font-family: 'Share Tech Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  color: #ff1a1a;
 }
 
 .page {
@@ -53,6 +94,9 @@
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+  filter:
+    drop-shadow(0 0 2px rgba(255, 26, 26, 0.8))
+    drop-shadow(0 0 8px rgba(255, 26, 26, 0.4));
 }
 
 .home-hero h1 {
