@@ -7,10 +7,9 @@ const letteringSrc = `${import.meta.env.BASE_URL}chiaki-lettering-white.png`
 function HomeHeading() {
   return (
     <div className="home-hero">
-      <img
+      <div
         className="home-lettering"
-        src={letteringSrc}
-        alt=""
+        style={{ '--lettering-src': `url("${letteringSrc}")` }}
         aria-hidden="true"
       />
       <h1>{HAPPY_BIRTHDAY}</h1>

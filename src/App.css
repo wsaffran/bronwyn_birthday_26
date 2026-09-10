@@ -30,7 +30,7 @@
   font-size: clamp(1.4rem, 6.4vw, 2.05rem);
   line-height: 1;
   letter-spacing: 0.08em;
-  color: #ff1a1a;
+  color: var(--led-red, #ff1a1a);
 }
 
 .countdown-clock-done {
@@ -47,7 +47,7 @@
   font-family: 'Share Tech Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   font-size: 0.55rem;
   letter-spacing: 0.18em;
-  color: #ff1a1a;
+  color: var(--led-red, #ff1a1a);
 }
 
 .page {
@@ -89,14 +89,18 @@
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  height: auto;
   aspect-ratio: 1024 / 611;
-  object-fit: contain;
+  background-color: var(--led-red, #ff1a1a);
+  -webkit-mask-image: var(--lettering-src);
+  mask-image: var(--lettering-src);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
   pointer-events: none;
   user-select: none;
-  filter:
-    drop-shadow(0 0 2px rgba(255, 26, 26, 0.8))
-    drop-shadow(0 0 8px rgba(255, 26, 26, 0.4));
 }
 
 .home-hero h1 {
