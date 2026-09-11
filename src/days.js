@@ -15,8 +15,8 @@ export const days = [
     slug: 'day2',
     password: 'testday2',
     label: 'day 2',
-    title: 'Day 2',
-    kind: 'placeholder',
+    title: 'A maze, just for you',
+    kind: 'maze',
   },
   {
     id: 3,

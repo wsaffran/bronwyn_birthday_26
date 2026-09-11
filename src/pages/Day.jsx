@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { days } from '../days'
+import MazeGame from '../maze/MazeGame'
 import { useProgress } from '../progress'
 
 function MusicGift({ day }) {
@@ -36,11 +36,12 @@ function PlaceholderGift({ day }) {
 
 function GiftBody({ day }) {
   if (day.kind === 'music') return <MusicGift day={day} />
+  if (day.kind === 'maze') return <MazeGame />
   return <PlaceholderGift day={day} />
 }
 
 export default function Day() {
-  const { selectedDay: day, isUnlocked, canAttempt, unlock, selectDay, selectHome } =
+  const { selectedDay: day, isUnlocked, canAttempt, unlock, selectHome } =
     useProgress()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -48,7 +49,6 @@ export default function Day() {
   if (!day) return null
 
   const unlocked = isUnlocked(day.id)
-  const nextDay = days.find((entry) => entry.id === day.id + 1)
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -75,6 +75,15 @@ export default function Day() {
   }
 
   if (unlocked) {
+    if (day.kind === 'maze') {
+      return (
+        <main className="page page-maze">
+          <h1 className="visually-hidden">{day.title}</h1>
+          <MazeGame />
+        </main>
+      )
+    }
+
     return (
       <main className="page">
         <h1>{day.title}</h1>
