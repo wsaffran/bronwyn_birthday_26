@@ -20,8 +20,9 @@ export const INTERACT_RADIUS = 52
 // Keep the character sprite fully inside the map image.
 export const EDGE_MARGIN = 10
 
-// Where the character starts (world px) — Midtown Manhattan, near Times Square.
-export const PLAYER_START = { x: 700, y: 800 }
+// Where the character starts (world px) — Midtown Manhattan, right at Times
+// Square so the first landmark is immediately in reach.
+export const PLAYER_START = { x: 690, y: 720 }
 
 // Storybook marker styling (kept a constant screen size, independent of zoom).
 export const MARKER = {
