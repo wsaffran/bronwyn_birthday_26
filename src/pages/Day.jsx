@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import CatCollage from '../components/CatCollage'
 import { useProgress } from '../progress'
 
 function MusicGift({ day }) {
@@ -47,7 +48,6 @@ export default function Day() {
   if (!day) return null
 
   const unlocked = isUnlocked(day.id)
-
   function handleSubmit(event) {
     event.preventDefault()
     if (password.trim() === day.password) {
@@ -84,17 +84,29 @@ export default function Day() {
     )
   }
 
-  if (unlocked) {
+  const collage = day.slug === 'oct-14'
+
+  function frame(body) {
+    if (!collage) return <main className="page">{body}</main>
     return (
-      <main className="page">
-        <h1>{day.title}</h1>
-        <GiftBody day={day} />
+      <main className="page page-oct14">
+        <CatCollage />
+        <div className="oct14-panel">{body}</div>
       </main>
     )
   }
 
-  return (
-    <main className="page">
+  if (unlocked) {
+    return frame(
+      <>
+        <h1>{day.title}</h1>
+        <GiftBody day={day} />
+      </>,
+    )
+  }
+
+  return frame(
+    <>
       <h1>Unlock {day.label}</h1>
       <p className="lede">
         Enter the password from your clue to unlock.
@@ -121,6 +133,6 @@ export default function Day() {
       <button type="button" onClick={selectHome}>
         Home
       </button>
-    </main>
+    </>,
   )
 }
