@@ -109,6 +109,14 @@ export default function CityMapGame() {
     }
   }, [input])
 
+  // Own the keyboard listeners here (not in the async engine) so React
+  // StrictMode's mount/unmount/mount cannot leave the window without listeners.
+  useEffect(() => {
+    input.attach()
+    stageRef.current?.focus()
+    return () => input.detach()
+  }, [input])
+
   const openActive = useCallback(() => {
     if (openRef.current || !active) return
     openRef.current = active
@@ -159,7 +167,13 @@ export default function CityMapGame() {
 
   return (
     <div className="city-root">
-      <div className="city-stage" ref={stageRef} role="application" aria-label="NYC map explorer">
+      <div
+        className="city-stage"
+        ref={stageRef}
+        role="application"
+        aria-label="NYC map explorer"
+        tabIndex={-1}
+      >
         <canvas ref={canvasRef} className="city-canvas" onClick={handleCanvasClick}>
           A walkable map of New York City
         </canvas>

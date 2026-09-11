@@ -25,6 +25,7 @@
   overflow: hidden;
   background: #a9ccd6;
   touch-action: none;
+  outline: none;
 }
 
 .city-canvas {

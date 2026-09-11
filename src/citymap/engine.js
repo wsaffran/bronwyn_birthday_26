@@ -207,7 +207,9 @@ export async function createCityEngine({ canvas, stage, input, onActiveLandmark 
   })
   observer.observe(stage)
   resize()
-  input.attach()
+  // NOTE: input.attach()/detach() (the window key listeners) are owned by the
+  // React component, not the engine, so StrictMode's double-mount can't detach
+  // the surviving engine's listeners. The engine only reads input.primary().
   raf = requestAnimationFrame(tick)
 
   return {
@@ -234,7 +236,6 @@ export async function createCityEngine({ canvas, stage, input, onActiveLandmark 
       state.destroyed = true
       cancelAnimationFrame(raf)
       observer.disconnect()
-      input.detach()
     },
   }
 }
