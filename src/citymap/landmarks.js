@@ -3,7 +3,7 @@ import timesSquareImg from './assets/landmarks/times-square.webp'
 import centralParkImg from './assets/landmarks/central-park.webp'
 import brooklynBridgeImg from './assets/landmarks/brooklyn-bridge.webp'
 import prospectParkImg from './assets/landmarks/prospect-park.webp'
-import unisphereImg from './assets/landmarks/unisphere.webp'
+import longIslandCityImg from './assets/landmarks/long-island-city.webp'
 import brooklynMuseumImg from './assets/landmarks/brooklyn-museum.webp'
 
 // Each landmark is placed by pixel (x, y) on the map image (0,0 = top-left,
@@ -48,12 +48,12 @@ export const LANDMARKS = [
       "Brooklyn's great backyard, with a long meadow, a lake, and winding wooded paths.",
   },
   {
-    id: 'unisphere',
-    name: 'The Unisphere',
-    ...at(40.7458, -73.8447),
-    image: unisphereImg,
+    id: 'long-island-city',
+    name: 'Long Island City',
+    ...at(40.7466, -73.9575),
+    image: longIslandCityImg,
     story:
-      "A giant steel globe in Flushing Meadows, left over from the 1964 World's Fair.",
+      'A Queens waterfront neighborhood with gantries, the old Pepsi-Cola sign, and some of the best skyline views in the city.',
   },
   {
     id: 'brooklyn-museum',

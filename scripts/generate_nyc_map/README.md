@@ -12,6 +12,13 @@ palette, adds paper grain + a soft vignette, and writes:
 The committed `.webp` is the source of truth for the app; this script only needs
 to be re-run if you want to change the extent, palette, or resolution.
 
+> **Note:** the map currently shipped in the game is a provided Google Maps
+> screenshot (a 3000×3000 north-up view), not the output of this script. Its
+> geographic bbox in `src/citymap/mapMeta.js` was calibrated by hand against
+> known landmarks. Re-running this generator will overwrite both `nyc-map.webp`
+> and `mapMeta.js` with the storybook version, so only do so if you want to
+> switch back to the generated map.
+
 ## Usage
 
 ```bash
