@@ -203,31 +203,6 @@
   padding: 0.7rem 0.75rem;
 }
 
-.revisit-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  width: min(22rem, 100%);
-  margin: 0 auto;
-  padding: 0;
-  list-style: none;
-}
-
-.revisit-list button {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.15rem;
-  width: 100%;
-  padding: 0.55rem 0.8rem;
-  text-align: left;
-}
-
-.revisit-title {
-  font-size: 0.9rem;
-  opacity: 0.75;
-}
-
 .day-trail {
   display: flex;
   align-items: center;
@@ -311,7 +286,7 @@
 }
 
 .day-trail-track li {
-  flex: 0 0 2.75rem;
+  flex: 0 0 2.9rem;
 }
 
 .day-trail button {
@@ -332,6 +307,28 @@
     background-color 0.4s ease,
     border-color 0.4s ease,
     color 0.4s ease;
+}
+
+.day-trail-track button {
+  flex-direction: column;
+  gap: 0.05rem;
+  width: 2.9rem;
+  min-width: 2.9rem;
+  min-height: 2.9rem;
+  padding: 0.28rem 0 0.32rem;
+  line-height: 1;
+}
+
+.day-trail-month {
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.day-trail-date {
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .day-trail button.is-locked {

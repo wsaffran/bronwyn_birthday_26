@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { days } from '../days'
 import { useProgress } from '../progress'
 
 function MusicGift({ day }) {
@@ -40,7 +39,7 @@ function GiftBody({ day }) {
 }
 
 export default function Day() {
-  const { selectedDay: day, isUnlocked, canAttempt, unlock, selectDay, selectHome } =
+  const { selectedDay: day, isUnlocked, isDateOpen, canAttempt, unlock, selectHome } =
     useProgress()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -48,7 +47,6 @@ export default function Day() {
   if (!day) return null
 
   const unlocked = isUnlocked(day.id)
-  const nextDay = days.find((entry) => entry.id === day.id + 1)
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -61,11 +59,23 @@ export default function Day() {
   }
 
   if (!canAttempt(day.id)) {
+    if (!isDateOpen(day.id)) {
+      return (
+        <main className="page">
+          <h1>Not yet</h1>
+          <p className="lede">This gift opens on {day.label}.</p>
+          <button type="button" onClick={selectHome}>
+            Home
+          </button>
+        </main>
+      )
+    }
+
     return (
       <main className="page">
         <h1>Nice try!</h1>
         <p className="lede">
-          I'm sorry Bronwyn, but you are not allowed to open this gift yet. 
+          I'm sorry Bronwyn, but you are not allowed to open this gift yet.
         </p>
         <button type="button" onClick={selectHome}>
           Home

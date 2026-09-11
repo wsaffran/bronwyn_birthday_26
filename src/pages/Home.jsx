@@ -19,14 +19,13 @@ function HomeHeading() {
 }
 
 export default function Home() {
-  const { allUnlocked, hasUnlocked, isUnlocked, nextDay, selectDay } =
-    useProgress()
-  const showRevisit = allUnlocked || !nextDay
-  const lede = !hasUnlocked
-    ? 'A new gift unlocks each day. Start with day one when you have your clue.'
-    : showRevisit
-      ? 'Every gift is open. Pick a day to revisit.'
-      : "Come back after you open today's envelope."
+  const { allUnlocked, nextDay, canAttempt, selectDay } = useProgress()
+  const nextIsOpen = Boolean(nextDay) && canAttempt(nextDay.id)
+  const copy = nextIsOpen
+    ? `Continue with ${nextDay.label}`
+    : nextDay
+      ? `Come back on ${nextDay.label}!`
+      : 'Hi, you have unlocked every day. I hope you had fun!'
 
   return (
     <>
@@ -37,25 +36,25 @@ export default function Home() {
       />
       <main className="page page-home">
         <HomeHeading />
-        <p className="lede">{lede}</p>
-        {showRevisit ? (
-          <ul className="revisit-list">
-            {days
-              .filter((day) => isUnlocked(day.id))
-              .map((day) => (
-                <li key={day.id}>
-                  <button type="button" onClick={() => selectDay(day.id)}>
-                    <span>{day.label}</span>
-                    <span className="revisit-title">{day.title}</span>
-                  </button>
-                </li>
-              ))}
-          </ul>
-        ) : (
+        {nextIsOpen ? (
           <button type="button" onClick={() => selectDay(nextDay.id)}>
-            {hasUnlocked ? `Continue with ${nextDay.label}` : 'Start with day 1'}
+            {copy}
           </button>
+        ) : (
+          <p className="lede">{copy}</p>
         )}
+        {allUnlocked ? (
+          <ul className="revisit-list">
+            {days.map((day) => (
+              <li key={day.id}>
+                <button type="button" onClick={() => selectDay(day.id)}>
+                  <span>{day.label}</span>
+                  <span className="revisit-title">{day.title}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </main>
     </>
   )
