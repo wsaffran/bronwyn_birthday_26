@@ -6,7 +6,7 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: #05040a;
+  background: #030208;
 }
 
 .maze-root-win {
@@ -71,7 +71,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #0a0810;
+  background: #030208;
   touch-action: none;
 }
 

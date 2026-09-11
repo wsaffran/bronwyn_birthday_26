@@ -4,6 +4,8 @@ export const SPRITE_H = 24
 export const WALK_MS = 145
 export const HURT_MS = 280
 export const TRANSITION_MS = 220
+export const LIGHT_INNER = 2.05
+export const LIGHT_OUTER = 3.4
 
 export const DIR = {
   up: { x: 0, y: -1, index: 3, opposite: 'down' },

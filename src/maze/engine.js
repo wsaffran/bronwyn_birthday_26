@@ -1,6 +1,6 @@
 import tilesetUrl from './assets/tileset.png'
 import walkerUrl from './assets/walker.png'
-import { DIR, DIR_FROM_DELTA, HURT_MS, SHEET, SPRITE_H, SPRITE_W, TILE, TILE_SIZE, TRANSITION_MS, WALK_MS } from './constants'
+import { DIR, DIR_FROM_DELTA, HURT_MS, LIGHT_INNER, LIGHT_OUTER, SHEET, SPRITE_H, SPRITE_W, TILE, TILE_SIZE, TRANSITION_MS, WALK_MS } from './constants'
 import { ICONS } from './icons'
 import { WINGS, canStep, isHazard, isWallLike, shortestPath } from './maps'
 
@@ -15,6 +15,24 @@ function loadImage(src) {
 
 function lerp(a, b, t) {
   return a + (b - a) * t
+}
+
+function blocksLight(tile, gateIsOpen) {
+  return tile === TILE.WALL || (tile === TILE.GATE && !gateIsOpen)
+}
+
+function hasLineOfSight(tiles, x0, y0, x1, y1, gateIsOpen) {
+  if (x0 === x1 && y0 === y1) return true
+  const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))
+  for (let i = 1; i < steps; i += 1) {
+    const t = i / steps
+    const x = Math.round(x0 + (x1 - x0) * t)
+    const y = Math.round(y0 + (y1 - y0) * t)
+    if (x === x1 && y === y1) continue
+    const row = tiles[y]
+    if (!row || blocksLight(row[x], gateIsOpen)) return false
+  }
+  return true
 }
 
 function sheetIndex(tiles, x, y, tile, gateOpen) {
@@ -217,12 +235,31 @@ export async function createMazeEngine({
     return { x: Math.floor(camX), y: Math.floor(camY) }
   }
 
+  function torchLight(tx, ty, originX, originY, originTx, originTy, open, now) {
+    const flicker = 0.12 * Math.sin(now / 140) + 0.06 * Math.sin(now / 73)
+    const inner = LIGHT_INNER + flicker * 0.15
+    const outer = LIGHT_OUTER + flicker
+    const dx = (tx + 0.5) * TILE_SIZE - originX
+    const dy = (ty + 0.5) * TILE_SIZE - originY
+    const dist = Math.hypot(dx, dy) / TILE_SIZE
+    if (dist > outer) return 0
+    if (!hasLineOfSight(wing().tiles, originTx, originTy, tx, ty, open)) return 0
+    if (dist <= inner) return 1
+    return Math.max(0, 1 - (dist - inner) / (outer - inner))
+  }
+
   function draw() {
     const current = wing()
     const cam = camera()
     const pos = pixelPos()
+    const now = performance.now()
+    const open = gateOpen()
+    const originX = pos.x + TILE_SIZE / 2
+    const originY = pos.y + TILE_SIZE / 2
+    const originTx = Math.max(0, Math.min(current.width - 1, Math.round(pos.x / TILE_SIZE)))
+    const originTy = Math.max(0, Math.min(current.height - 1, Math.round(pos.y / TILE_SIZE)))
     ctx.imageSmoothingEnabled = false
-    ctx.fillStyle = '#0a0810'
+    ctx.fillStyle = '#030208'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     const x0 = Math.max(0, Math.floor(cam.x / TILE_SIZE) - 1)
@@ -230,36 +267,54 @@ export async function createMazeEngine({
     const x1 = Math.min(current.width - 1, Math.floor((cam.x + state.viewW) / TILE_SIZE) + 1)
     const y1 = Math.min(current.height - 1, Math.floor((cam.y + state.viewH) / TILE_SIZE) + 1)
     const playerRow = Math.round(pos.y / TILE_SIZE)
-    const open = gateOpen()
 
     for (let y = y0; y <= y1; y += 1) {
       for (let x = x0; x <= x1; x += 1) {
+        const vis = torchLight(x, y, originX, originY, originTx, originTy, open, now)
+        if (vis < 0.04) continue
         const tile = current.tiles[y][x]
         const index = sheetIndex(current.tiles, x, y, tile, open)
+        const dx = x * TILE_SIZE - cam.x
+        const dy = y * TILE_SIZE - cam.y
+        ctx.globalAlpha = vis
         ctx.drawImage(
           tileset,
           index * TILE_SIZE,
           0,
           TILE_SIZE,
           TILE_SIZE,
-          x * TILE_SIZE - cam.x,
-          y * TILE_SIZE - cam.y,
+          dx,
+          dy,
           TILE_SIZE,
           TILE_SIZE,
         )
+        ctx.globalAlpha = 1
+        if (vis < 1) {
+          ctx.fillStyle = `rgba(3, 2, 8, ${1 - vis})`
+          ctx.fillRect(dx, dy, TILE_SIZE, TILE_SIZE)
+        }
       }
 
-      if (
-        !collectedHere() &&
-        current.item.y === y &&
-        current.item.x >= x0 &&
-        current.item.x <= x1
-      ) {
-        const icon = iconImages[state.wingIndex]
-        const size = 22
-        const dx = current.item.x * TILE_SIZE - cam.x + (TILE_SIZE - size) / 2
-        const dy = current.item.y * TILE_SIZE - cam.y + (TILE_SIZE - size) / 2
-        ctx.drawImage(icon, dx, dy, size, size)
+      if (!collectedHere() && current.item.y === y && current.item.x >= x0 && current.item.x <= x1) {
+        const itemVis = torchLight(
+          current.item.x,
+          current.item.y,
+          originX,
+          originY,
+          originTx,
+          originTy,
+          open,
+          now,
+        )
+        if (itemVis > 0.42) {
+          const icon = iconImages[state.wingIndex]
+          const size = 22
+          const dx = current.item.x * TILE_SIZE - cam.x + (TILE_SIZE - size) / 2
+          const dy = current.item.y * TILE_SIZE - cam.y + (TILE_SIZE - size) / 2
+          ctx.globalAlpha = itemVis
+          ctx.drawImage(icon, dx, dy, size, size)
+          ctx.globalAlpha = 1
+        }
       }
 
       if (playerRow === y) {
@@ -269,13 +324,22 @@ export async function createMazeEngine({
 
     if (playerRow < y0 || playerRow > y1) drawPlayer(cam, pos)
 
-    if (performance.now() < state.hurtUntil) {
+    const lx = originX - cam.x
+    const ly = originY - cam.y - 4
+    const glow = ctx.createRadialGradient(lx, ly, 2, lx, ly, TILE_SIZE * 2.4)
+    glow.addColorStop(0, 'rgba(255, 186, 92, 0.22)')
+    glow.addColorStop(0.45, 'rgba(168, 72, 28, 0.08)')
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)')
+    ctx.fillStyle = glow
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    if (now < state.hurtUntil) {
       ctx.fillStyle = 'rgba(160, 32, 40, 0.28)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
 
     if (state.fade > 0) {
-      ctx.fillStyle = `rgba(8, 6, 12, ${state.fade})`
+      ctx.fillStyle = `rgba(3, 2, 8, ${state.fade})`
       ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
   }
