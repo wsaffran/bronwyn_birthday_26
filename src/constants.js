@@ -1,5 +1,3 @@
-export const HAPPY_BIRTHDAY = 'Happy Birthday, Bronwyn'
-
 export const TAB_TITLE_BEFORE = 'BRONWYN IS ALMOST 26'
 export const TAB_TITLE_AFTER = 'BRONWYN IS 26!!!'
 
