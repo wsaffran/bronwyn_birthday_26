@@ -18,15 +18,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 72px;
-  padding: 0.2rem 0.5rem 0;
+  height: 96px;
+  padding: 0.15rem 0.5rem 0;
   background: #000;
 }
 
 .maze-hud-arch {
   position: relative;
   height: 100%;
-  width: calc(72px * 974 / 435);
+  width: calc(96px * 974 / 435);
   max-width: 100%;
   aspect-ratio: 974 / 435;
 }
@@ -181,7 +181,11 @@
 
 @media (max-width: 430px) {
   .maze-hud {
-    height: 64px;
+    height: 80px;
+  }
+
+  .maze-hud-arch {
+    width: calc(80px * 974 / 435);
   }
 
   .maze-dpad {
