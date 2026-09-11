@@ -170,6 +170,11 @@
 
 .embed-frame {
   width: min(42rem, 100%);
+  overflow: hidden;
+  border-radius: 12px;
+  background: transparent;
+  clip-path: inset(0 round 12px);
+  transform: translateZ(0);
 }
 
 .embed-frame iframe {
@@ -177,6 +182,8 @@
   width: 100%;
   height: 352px;
   border: 0;
+  border-radius: 12px;
+  background: transparent;
 }
 
 .lock-form {

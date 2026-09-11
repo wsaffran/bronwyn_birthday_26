@@ -58,22 +58,6 @@ export const days = [
     title: 'Day 7',
     kind: 'placeholder',
   },
-  {
-    id: 8,
-    slug: 'day8',
-    password: 'testday8',
-    label: 'day 8',
-    title: 'Day 8',
-    kind: 'placeholder',
-  },
-  {
-    id: 9,
-    slug: 'day9',
-    password: 'testday9',
-    label: 'day 9',
-    title: 'Day 9',
-    kind: 'placeholder',
-  },
 ]
 
 export function getDay(id) {
