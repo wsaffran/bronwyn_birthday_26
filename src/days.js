@@ -23,8 +23,8 @@ export const days = [
     slug: 'day3',
     password: 'testday3',
     label: 'day 3',
-    title: 'Day 3',
-    kind: 'placeholder',
+    title: 'A walk through the city, just for you',
+    kind: 'citymap',
   },
   {
     id: 4,

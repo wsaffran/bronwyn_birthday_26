@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import MazeGame from '../maze/MazeGame'
+import CityMapGame from '../citymap/CityMapGame'
 import { useProgress } from '../progress'
 
 function MusicGift({ day }) {
@@ -80,6 +81,15 @@ export default function Day() {
         <main className="page page-maze">
           <h1 className="visually-hidden">{day.title}</h1>
           <MazeGame />
+        </main>
+      )
+    }
+
+    if (day.kind === 'citymap') {
+      return (
+        <main className="page page-citymap">
+          <h1 className="visually-hidden">{day.title}</h1>
+          <CityMapGame />
         </main>
       )
     }
