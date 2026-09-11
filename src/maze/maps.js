@@ -217,6 +217,39 @@ function bfsTiles(tiles, start, collected, gateReq, avoidHazards) {
   return dist
 }
 
+export function shortestPath(tiles, start, goal, collected, gateReq) {
+  const h = tiles.length
+  const w = tiles[0].length
+  const key = (x, y) => `${x},${y}`
+  const prev = new Map()
+  const q = [start]
+  const seen = new Set([key(start.x, start.y)])
+  while (q.length) {
+    const cur = q.shift()
+    if (cur.x === goal.x && cur.y === goal.y) {
+      const out = [cur]
+      let step = cur
+      while (prev.has(key(step.x, step.y))) {
+        step = prev.get(key(step.x, step.y))
+        out.push(step)
+      }
+      return out.reverse()
+    }
+    for (const dir of Object.values(DIR)) {
+      const to = { x: cur.x + dir.x, y: cur.y + dir.y }
+      if (to.x < 0 || to.y < 0 || to.x >= w || to.y >= h) continue
+      const k = key(to.x, to.y)
+      if (seen.has(k)) continue
+      if (tiles[to.y][to.x] === TILE.PIT || tiles[to.y][to.x] === TILE.SPIKE) continue
+      if (!canStep(tiles, cur, to, collected, gateReq)) continue
+      seen.add(k)
+      prev.set(k, cur)
+      q.push(to)
+    }
+  }
+  return null
+}
+
 function isSolvable(wing) {
   const { tiles, start, item, exit, gateReq } = wing
   const toItem = bfsTiles(tiles, start, 0, gateReq, true)

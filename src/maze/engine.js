@@ -1,18 +1,8 @@
 import tilesetUrl from './assets/tileset.png'
 import walkerUrl from './assets/walker.png'
-import {
-  DIR,
-  HURT_MS,
-  SHEET,
-  SPRITE_H,
-  SPRITE_W,
-  TILE,
-  TILE_SIZE,
-  TRANSITION_MS,
-  WALK_MS,
-} from './constants'
+import { DIR, DIR_FROM_DELTA, HURT_MS, SHEET, SPRITE_H, SPRITE_W, TILE, TILE_SIZE, TRANSITION_MS, WALK_MS } from './constants'
 import { ICONS } from './icons'
-import { WINGS, canStep, isHazard, isWallLike } from './maps'
+import { WINGS, canStep, isHazard, isWallLike, shortestPath } from './maps'
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -57,6 +47,10 @@ export async function createMazeEngine({
     ...ICONS.map((icon) => loadImage(icon.src)),
   ])
 
+  const autoSolve =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).has('mazesolve')
+  const walkMs = autoSolve ? 70 : WALK_MS
   const ctx = canvas.getContext('2d')
   const state = {
     wingIndex: 0,
@@ -304,6 +298,23 @@ export async function createMazeEngine({
     )
   }
 
+  function autoDir() {
+    const current = wing()
+    const collectedCount = collectedHere() ? 1 : 0
+    const goal = collectedHere() ? current.exit : current.item
+    if (!goal) return null
+    const route = shortestPath(
+      current.tiles,
+      { x: state.x, y: state.y },
+      goal,
+      collectedCount,
+      current.gateReq,
+    )
+    if (!route || route.length < 2) return null
+    const next = route[1]
+    return DIR_FROM_DELTA[`${next.x - state.x},${next.y - state.y}`]
+  }
+
   let last = performance.now()
   function tick(now) {
     if (state.destroyed) return
@@ -320,11 +331,11 @@ export async function createMazeEngine({
       state.fade = Math.max(0, state.fade - dt / TRANSITION_MS)
       if (state.fade <= 0) state.fading = null
     } else if (state.walking) {
-      state.walkT = Math.min(1, state.walkT + dt / WALK_MS)
+      state.walkT = Math.min(1, state.walkT + dt / walkMs)
       state.frame = state.walkT < 0.5 ? 1 : 0
       if (state.walkT >= 1) arrive()
     } else {
-      const dir = input.primary()
+      const dir = autoSolve ? autoDir() : input.primary()
       if (dir) tryMove(dir)
     }
 
