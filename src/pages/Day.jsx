@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import MazeGame from '../maze/MazeGame'
+import CityMapGame from '../citymap/CityMapGame'
 import CatCollage from '../components/CatCollage'
 import { useProgress } from '../progress'
 
@@ -36,6 +38,7 @@ function PlaceholderGift({ day }) {
 
 function GiftBody({ day }) {
   if (day.kind === 'music') return <MusicGift day={day} />
+  if (day.kind === 'maze') return <MazeGame />
   return <PlaceholderGift day={day} />
 }
 
@@ -83,6 +86,25 @@ export default function Day() {
       </main>
     )
   }
+
+  if (unlocked) {
+    if (day.kind === 'maze') {
+      return (
+        <main className="page page-maze">
+          <h1 className="visually-hidden">{day.title}</h1>
+          <MazeGame />
+        </main>
+      )
+    }
+
+    if (day.kind === 'citymap') {
+      return (
+        <main className="page page-citymap">
+          <h1 className="visually-hidden">{day.title}</h1>
+          <CityMapGame />
+        </main>
+      )
+    }
 
   const collage = day.slug === 'oct-14'
 

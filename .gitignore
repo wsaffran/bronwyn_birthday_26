@@ -23,3 +23,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# NYC map generator local artifacts
+scripts/generate_nyc_map/__pycache__/
+scripts/generate_nyc_map/cache/
+scripts/generate_nyc_map/.nyc-map-raw.png
