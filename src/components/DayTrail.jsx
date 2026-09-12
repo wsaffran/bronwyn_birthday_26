@@ -130,7 +130,9 @@ export default function DayTrail() {
                     className={unlocked ? undefined : 'is-locked'}
                     aria-current={current ? 'page' : undefined}
                     aria-label={
-                      unlocked ? `Day ${day.id}, opened` : `Day ${day.id}, locked`
+                      unlocked
+                        ? `${day.label}, opened`
+                        : `${day.label}, locked`
                     }
                     disabled={!canAttempt(day.id)}
                     onClick={() => selectDay(day.id)}
@@ -138,7 +140,8 @@ export default function DayTrail() {
                       alignScroller(scrollerRef.current, event.currentTarget)
                     }
                   >
-                    {day.id}
+                    <span className="day-trail-month">{day.chipMonth}</span>
+                    <span className="day-trail-date">{day.chipDate}</span>
                   </button>
                 </li>
               )

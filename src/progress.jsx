@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { days, getDay } from './days'
+import { days, getDay, isOpenOn } from './days'
 
 const COOKIE_NAME = 'bronwyn-days-unlocked'
 const LEGACY_MUSIC_KEY = 'gift-unlocked-music'
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 400
 const HOME = 'home'
 const DAY_PARAM = 'day'
+const UNLOCK_PARAM = 'unlock'
+const UNLOCK_OFF = new Set(['0', 'false', 'off'])
 
 const ProgressContext = createContext(null)
 
@@ -41,8 +43,27 @@ function persistUnlockedDays(ids) {
   writeCookie(COOKIE_NAME, uniqueSorted(ids).join(','))
 }
 
-function canAttemptDay(unlocked, id) {
+function skipDateLocksFromSearch(search = window.location.search) {
+  const params = new URLSearchParams(search)
+  if (!params.has(UNLOCK_PARAM)) return false
+  const raw = params.get(UNLOCK_PARAM)
+  if (raw === '' || raw == null) return true
+  return !UNLOCK_OFF.has(raw.toLowerCase())
+}
+
+function isSequenceReady(unlocked, id) {
   return id === 1 || unlocked.includes(id - 1)
+}
+
+function isDateOpenFor(day, now, skipDateLocks) {
+  return Boolean(day) && (skipDateLocks || isOpenOn(day, now))
+}
+
+function canAttemptDay(unlocked, id, now, skipDateLocks) {
+  const day = getDay(id)
+  if (!day) return false
+  if (unlocked.includes(id)) return true
+  return isSequenceReady(unlocked, id) && isDateOpenFor(day, now, skipDateLocks)
 }
 
 function parseDayParam(raw) {
@@ -65,6 +86,11 @@ function syncUrl(selected) {
   if (next !== current) window.history.replaceState(null, '', next)
 }
 
+function msUntilNextMidnight(now) {
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  return Math.max(1, next.getTime() - now.getTime())
+}
+
 export function ProgressProvider({ children }) {
   const [unlocked, setUnlocked] = useState(() => {
     const ids = readUnlockedDays()
@@ -72,14 +98,23 @@ export function ProgressProvider({ children }) {
     return ids
   })
   const [selected, setSelected] = useState(readSelectedFromUrl)
+  const [now, setNow] = useState(() => new Date())
+  const [skipDateLocks] = useState(skipDateLocksFromSearch)
 
   useEffect(() => {
     syncUrl(selected)
   }, [selected])
 
+  useEffect(() => {
+    if (skipDateLocks) return undefined
+    const id = window.setTimeout(() => {
+      setNow(new Date())
+    }, msUntilNextMidnight(now))
+    return () => window.clearTimeout(id)
+  }, [now, skipDateLocks])
+
   const value = useMemo(() => {
-    const highest = unlocked.at(-1) ?? 0
-    const nextDay = days.find((day) => day.id === highest + 1) ?? null
+    const nextDay = days.find((day) => !unlocked.includes(day.id)) ?? null
     const selectedDay = selected === HOME ? null : (getDay(selected) ?? null)
 
     return {
@@ -92,14 +127,17 @@ export function ProgressProvider({ children }) {
       isUnlocked(id) {
         return unlocked.includes(id)
       },
+      isDateOpen(id) {
+        return isDateOpenFor(getDay(id), now, skipDateLocks)
+      },
       canAttempt(id) {
-        return canAttemptDay(unlocked, id)
+        return canAttemptDay(unlocked, id, now, skipDateLocks)
       },
       selectHome() {
         setSelected(HOME)
       },
       selectDay(id) {
-        if (!canAttemptDay(unlocked, id)) return
+        if (!canAttemptDay(unlocked, id, now, skipDateLocks)) return
         setSelected(id)
       },
       unlock(id) {
@@ -112,7 +150,7 @@ export function ProgressProvider({ children }) {
         setSelected(id)
       },
     }
-  }, [selected, unlocked])
+  }, [now, selected, skipDateLocks, unlocked])
 
   return (
     <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>

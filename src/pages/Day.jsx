@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import MazeGame from '../maze/MazeGame'
 import CityMapGame from '../citymap/CityMapGame'
+import CatCollage from '../components/CatCollage'
 import { useProgress } from '../progress'
 
 function MusicGift({ day }) {
@@ -42,7 +43,7 @@ function GiftBody({ day }) {
 }
 
 export default function Day() {
-  const { selectedDay: day, isUnlocked, canAttempt, unlock, selectHome } =
+  const { selectedDay: day, isUnlocked, isDateOpen, canAttempt, unlock, selectHome } =
     useProgress()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -50,7 +51,6 @@ export default function Day() {
   if (!day) return null
 
   const unlocked = isUnlocked(day.id)
-
   function handleSubmit(event) {
     event.preventDefault()
     if (password.trim() === day.password) {
@@ -62,11 +62,23 @@ export default function Day() {
   }
 
   if (!canAttempt(day.id)) {
+    if (!isDateOpen(day.id)) {
+      return (
+        <main className="page">
+          <h1>Not yet</h1>
+          <p className="lede">This gift opens on {day.label}.</p>
+          <button type="button" onClick={selectHome}>
+            Home
+          </button>
+        </main>
+      )
+    }
+
     return (
       <main className="page">
         <h1>Nice try!</h1>
         <p className="lede">
-          I'm sorry Bronwyn, but you are not allowed to open this gift yet. 
+          I'm sorry Bronwyn, but you are not allowed to open this gift yet.
         </p>
         <button type="button" onClick={selectHome}>
           Home
@@ -94,16 +106,29 @@ export default function Day() {
       )
     }
 
+  const collage = day.slug === 'oct-14'
+
+  function frame(body) {
+    if (!collage) return <main className="page">{body}</main>
     return (
-      <main className="page">
-        <h1>{day.title}</h1>
-        <GiftBody day={day} />
+      <main className="page page-oct14">
+        <CatCollage />
+        <div className="oct14-panel">{body}</div>
       </main>
     )
   }
 
-  return (
-    <main className="page">
+  if (unlocked) {
+    return frame(
+      <>
+        <h1>{day.title}</h1>
+        <GiftBody day={day} />
+      </>,
+    )
+  }
+
+  return frame(
+    <>
       <h1>Unlock {day.label}</h1>
       <p className="lede">
         Enter the password from your clue to unlock.
@@ -130,6 +155,6 @@ export default function Day() {
       <button type="button" onClick={selectHome}>
         Home
       </button>
-    </main>
+    </>,
   )
 }

@@ -1,4 +1,3 @@
-import { HAPPY_BIRTHDAY } from '../constants'
 import { days } from '../days'
 import { useProgress } from '../progress'
 
@@ -13,20 +12,38 @@ function HomeHeading() {
         style={{ '--lettering-src': `url("${letteringSrc}")` }}
         aria-hidden="true"
       />
-      <h1>{HAPPY_BIRTHDAY}</h1>
+    </div>
+  )
+}
+
+function HomeLetter() {
+  return (
+    <div className="home-letter">
+      <h1 className="visually-hidden">A letter for Bronwyn</h1>
+      <p>
+        Hi pookie. You made it to Japan and your birthday week! Even though we are halfway
+        around the world, I'm gonna be keeping you company through one of the
+        ways I know best. Visit me here whenever you like, I'll have something
+        new every day.
+      </p>
+      <p>
+        Before you left, I gave you 7 envelopes, one for each day you're in
+        Japan. On each day, open the envelope for that day. Somewhere inside
+        will be a clue that will help you unlock that page.
+      </p>
+      <p>See you soon and have the best day in Japan!</p>
     </div>
   )
 }
 
 export default function Home() {
-  const { allUnlocked, hasUnlocked, isUnlocked, nextDay, selectDay } =
-    useProgress()
-  const showRevisit = allUnlocked || !nextDay
-  const lede = !hasUnlocked
-    ? 'A new gift unlocks each day. Start with day one when you have your clue.'
-    : showRevisit
-      ? 'Every gift is open. Pick a day to revisit.'
-      : "Come back after you open today's envelope."
+  const { allUnlocked, nextDay, canAttempt, selectDay } = useProgress()
+  const nextIsOpen = Boolean(nextDay) && canAttempt(nextDay.id)
+  const copy = nextIsOpen
+    ? `Continue with ${nextDay.label}`
+    : nextDay
+      ? `Come back on ${nextDay.label}!`
+      : 'Hi, you have unlocked every day. I hope you had fun!'
 
   return (
     <>
@@ -37,25 +54,28 @@ export default function Home() {
       />
       <main className="page page-home">
         <HomeHeading />
-        <p className="lede">{lede}</p>
-        {showRevisit ? (
+        <div className="home-body">
+          <HomeLetter />
+          {nextIsOpen ? (
+            <button type="button" onClick={() => selectDay(nextDay.id)}>
+              {copy}
+            </button>
+          ) : (
+            <p className="lede">{copy}</p>
+          )}
+        </div>
+        {allUnlocked ? (
           <ul className="revisit-list">
-            {days
-              .filter((day) => isUnlocked(day.id))
-              .map((day) => (
-                <li key={day.id}>
-                  <button type="button" onClick={() => selectDay(day.id)}>
-                    <span>{day.label}</span>
-                    <span className="revisit-title">{day.title}</span>
-                  </button>
-                </li>
-              ))}
+            {days.map((day) => (
+              <li key={day.id}>
+                <button type="button" onClick={() => selectDay(day.id)}>
+                  <span>{day.label}</span>
+                  <span className="revisit-title">{day.title}</span>
+                </button>
+              </li>
+            ))}
           </ul>
-        ) : (
-          <button type="button" onClick={() => selectDay(nextDay.id)}>
-            {hasUnlocked ? `Continue with ${nextDay.label}` : 'Start with day 1'}
-          </button>
-        )}
+        ) : null}
       </main>
     </>
   )
