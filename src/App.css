@@ -238,6 +238,208 @@
   padding: 0.7rem 0.75rem;
 }
 
+.page.page-oct13 {
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+.nyc-map {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+}
+
+.nyc-map-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #1a1a1a;
+}
+
+.nyc-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #1a1a1a;
+  font: inherit;
+}
+
+.nyc-map .leaflet-control-attribution {
+  max-width: min(14rem, 46vw);
+  margin: 0 0.35rem 0.3rem;
+  background: rgb(0 0 0 / 62%);
+  color: rgb(255 255 255 / 82%);
+}
+
+.nyc-map .leaflet-control-attribution a {
+  display: inline;
+  min-height: 0;
+  color: inherit;
+}
+
+.map-walker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 500;
+  width: clamp(5.4rem, 30vw, 7.2rem);
+  height: auto;
+  transform: translate(-50%, -78%);
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 75%)) drop-shadow(0 0 2px rgb(255 255 255 / 70%));
+}
+
+.map-walker.is-walking {
+  animation: walker-bob 0.38s ease-in-out infinite;
+}
+
+@keyframes walker-bob {
+  0%,
+  100% {
+    transform: translate(-50%, -78%);
+  }
+
+  50% {
+    transform: translate(-50%, -88%);
+  }
+}
+
+.map-home {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  z-index: 850;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 0.55rem;
+  background: rgb(0 0 0 / 62%);
+  color: inherit;
+  cursor: pointer;
+}
+
+.map-joystick {
+  position: absolute;
+  left: 0.7rem;
+  bottom: 0.7rem;
+  z-index: 600;
+  pointer-events: none;
+}
+
+.map-joystick-pad {
+  position: relative;
+  width: 7.25rem;
+  height: 7.25rem;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 50%;
+  background: rgb(0 0 0 / 42%);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.map-joystick-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -1.375rem 0 0 -1.375rem;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 82%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 45%);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.map-zoom {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 2.15rem;
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.map-zoom button {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 0.55rem;
+  background: rgb(0 0 0 / 62%);
+  color: inherit;
+  cursor: pointer;
+}
+
+.map-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 800;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(0 0 0 / 45%);
+}
+
+.map-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-height: min(88%, 42rem);
+  padding: 1.1rem 1.15rem 1.2rem;
+  overflow-y: auto;
+  border-top: 1px solid rgb(255 255 255 / 28%);
+  background: #111;
+  color: #fff;
+}
+
+.map-modal h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.map-modal-photo {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: min(52vh, 28rem);
+  height: auto;
+  align-self: center;
+  border-radius: 0.4rem;
+}
+
+.map-modal p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.map-modal button {
+  align-self: stretch;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 0.55rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-walker.is-walking {
+    animation: none;
+  }
+}
+
 .page-oct14 {
   position: relative;
   overflow: hidden;
@@ -553,6 +755,11 @@
     gap: 0.8rem;
     padding: 0.9rem 1rem 1.1rem;
   }
+
+  .page.page-oct13 {
+    padding: 0;
+    gap: 0;
+  }
 }
 
 @media (max-height: 560px) {
@@ -560,6 +767,21 @@
     justify-content: flex-start;
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
+  }
+
+  .page.page-oct13 {
+    padding: 0;
+  }
+
+  .map-joystick-pad {
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+
+  .map-joystick-knob {
+    width: 2.15rem;
+    height: 2.15rem;
+    margin: -1.075rem 0 0 -1.075rem;
   }
 
   .embed-frame iframe {
