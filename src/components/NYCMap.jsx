@@ -10,6 +10,7 @@ import {
   MAP_MAX_ZOOM,
   MAP_MIN_ZOOM,
   MAP_START,
+  PIN_OPEN_RADIUS_PX,
   mapPins,
 } from '../mapPins'
 
@@ -17,7 +18,7 @@ delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl })
 
 const SPEED_PX_PER_SEC = 180
-const walkerSrc = `${import.meta.env.BASE_URL}cats/cat-1.png`
+const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
 
 export default function NYCMap() {
   const canvasRef = useRef(null)
@@ -26,7 +27,9 @@ export default function NYCMap() {
   const vectorRef = useRef({ x: 0, y: 0 })
   const pausedRef = useRef(false)
   const walkerRef = useRef(null)
+  const nearbyIdRef = useRef(null)
   const [activePin, setActivePin] = useState(null)
+  const [nearbyPin, setNearbyPin] = useState(null)
 
   useEffect(() => {
     pausedRef.current = Boolean(activePin)
@@ -41,8 +44,14 @@ export default function NYCMap() {
     setActivePin(null)
   }, [])
 
+  const openNearbyPin = useCallback(() => {
+    if (!nearbyPin) return
+    setActivePin(nearbyPin)
+  }, [nearbyPin])
+
   useEffect(() => {
     const canvas = canvasRef.current
+    let cancelled = false
     const map = L.map(canvas, {
       center: [MAP_START.lat, MAP_START.lng],
       zoom: MAP_START.zoom,
@@ -65,27 +74,53 @@ export default function NYCMap() {
     }).addTo(map)
 
     for (const pin of mapPins) {
-      const layer = pin.circleRadius
-        ? L.circle([pin.lat, pin.lng], {
-            radius: pin.circleRadius,
-            color: '#ff1a1a',
-            fillColor: '#ff1a1a',
-            fillOpacity: 0.45,
-            weight: 3,
-          })
-        : L.marker([pin.lat, pin.lng], { title: pin.title })
-      layer.addTo(map)
-      layer.on('click', () => {
-        setActivePin(pin)
-      })
+      if (pin.circleRadius) {
+        L.circle([pin.lat, pin.lng], {
+          radius: pin.circleRadius,
+          color: '#ff1a1a',
+          fillColor: '#ff1a1a',
+          fillOpacity: 0.45,
+          weight: 3,
+          interactive: false,
+        }).addTo(map)
+      }
+      L.marker([pin.lat, pin.lng], {
+        title: pin.title,
+        interactive: false,
+        keyboard: false,
+      }).addTo(map)
+    }
+
+    function syncPins(mapInstance) {
+      if (cancelled) return
+      const center = mapInstance.latLngToContainerPoint(playerRef.current)
+      let nearest = null
+      let nearestDist = Infinity
+
+      for (const pin of mapPins) {
+        const point = mapInstance.latLngToContainerPoint([pin.lat, pin.lng])
+        const dist = point.distanceTo(center)
+        if (dist < nearestDist) {
+          nearestDist = dist
+          nearest = pin
+        }
+      }
+
+      const inRange = nearest && nearestDist <= PIN_OPEN_RADIUS_PX ? nearest : null
+      const nextId = inRange?.id ?? null
+      if (nearbyIdRef.current === nextId) return
+      nearbyIdRef.current = nextId
+      setNearbyPin(inRange)
     }
 
     mapRef.current = map
     playerRef.current = { lat: MAP_START.lat, lng: MAP_START.lng }
 
     const resize = () => {
+      if (cancelled || !mapRef.current) return
       map.invalidateSize()
       map.setView(playerRef.current, map.getZoom(), { animate: false })
+      syncPins(map)
     }
 
     const resizeObserver = new ResizeObserver(resize)
@@ -97,6 +132,7 @@ export default function NYCMap() {
     let lastTime = performance.now()
 
     function tick(now) {
+      if (cancelled) return
       const dt = Math.min(0.05, (now - lastTime) / 1000)
       lastTime = now
       const mapInstance = mapRef.current
@@ -121,19 +157,22 @@ export default function NYCMap() {
         walkerRef.current?.classList.remove('is-walking')
       }
 
+      if (mapInstance) syncPins(mapInstance)
+
       rafId = requestAnimationFrame(tick)
     }
 
     rafId = requestAnimationFrame(tick)
 
     return () => {
+      cancelled = true
       cancelAnimationFrame(rafId)
       resizeObserver.disconnect()
       window.removeEventListener('orientationchange', resize)
       map.remove()
       mapRef.current = null
     }
-  }, [])
+  }, [mapPins])
 
   function goHome() {
     const map = mapRef.current
@@ -163,6 +202,16 @@ export default function NYCMap() {
         alt=""
         draggable={false}
       />
+      {nearbyPin && !activePin ? (
+        <button
+          type="button"
+          className="map-pin-open"
+          aria-label={`Open ${nearbyPin.title}`}
+          onClick={openNearbyPin}
+        >
+          Open
+        </button>
+      ) : null}
       <button
         type="button"
         className="map-home"
