@@ -9,17 +9,14 @@ npm install
 npm run dev
 ```
 
-Then open the URL Vite prints (with the `/bronwyn_birthday_26/` base path).
+Then open the URL Vite prints.
 
 ## GitHub Pages
 
-The site will live at:
+The site is published at:
 
-https://wsaffran.github.io/bronwyn_birthday_26/
+https://bronwynsbirthday.com/
 
-After the first push to `main`:
+`public/CNAME` keeps that custom domain attached on each deploy. DNS for the domain points at GitHub Pages, and **Settings → Pages** uses GitHub Actions as the source.
 
-1. Repo **Settings → Pages**
-2. Set **Source** to **GitHub Actions**
-
-Later pushes to `main` rebuild and publish automatically.
+Pushes to `main` rebuild and publish automatically.

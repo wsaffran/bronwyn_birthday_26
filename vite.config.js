@@ -12,6 +12,6 @@ export default defineConfig({
       },
     },
   ],
-  // GitHub Pages serves this repo at https://wsaffran.github.io/bronwyn_birthday_26/
-  base: '/bronwyn_birthday_26/',
+  // Custom domain serves the site at the root of https://bronwynsbirthday.com/
+  base: '/',
 })
