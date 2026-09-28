@@ -58,8 +58,8 @@ export const days = [
   withOpenDate(october(11), {
     id: 2,
     password: 'testday2',
-    title: 'Day 2',
-    kind: 'placeholder',
+    title: 'A museum of us',
+    kind: 'museum',
   }),
   withOpenDate(october(12), {
     id: 3,

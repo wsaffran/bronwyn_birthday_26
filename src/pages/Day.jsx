@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import MuseumHall from '../components/MuseumHall'
 import NYCMap from '../components/NYCMap'
 import CatCollage from '../components/CatCollage'
 import { useProgress } from '../progress'
@@ -38,6 +39,7 @@ function PlaceholderGift({ day }) {
 function GiftBody({ day }) {
   if (day.kind === 'music') return <MusicGift day={day} />
   if (day.kind === 'map') return <NYCMap />
+  if (day.kind === 'museum') return <MuseumHall />
   return <PlaceholderGift day={day} />
 }
 
@@ -88,9 +90,11 @@ export default function Day() {
 
   const collage = day.slug === 'oct-14'
   const mapPage = day.kind === 'map' && unlocked
+  const museumPage = day.kind === 'museum' && unlocked
 
   function frame(body) {
     if (mapPage) return <main className="page page-oct13">{body}</main>
+    if (museumPage) return <main className="page page-museum">{body}</main>
     if (!collage) return <main className="page">{body}</main>
     return (
       <main className="page page-oct14">
@@ -101,7 +105,7 @@ export default function Day() {
   }
 
   if (unlocked) {
-    if (day.kind === 'map') return frame(<GiftBody day={day} />)
+    if (day.kind === 'map' || day.kind === 'museum') return frame(<GiftBody day={day} />)
     return frame(
       <>
         <h1>{day.title}</h1>

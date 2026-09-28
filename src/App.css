@@ -238,7 +238,8 @@
   padding: 0.7rem 0.75rem;
 }
 
-.page.page-oct13 {
+.page.page-oct13,
+.page.page-museum {
   padding: 0;
   gap: 0;
   overflow: hidden;
@@ -249,12 +250,119 @@
   overscroll-behavior: none;
 }
 
-.nyc-map {
+.nyc-map,
+.museum {
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
   width: 100%;
+}
+
+.museum {
+  overflow: hidden;
+  background: #0c0b0a;
+  touch-action: none;
+}
+
+.museum-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background: #0c0b0a;
+  pointer-events: none;
+}
+
+.museum-floor {
+  position: absolute;
+  z-index: 1;
+  background-color: #5a4014;
+  background-image:
+    linear-gradient(#2a1a08 2px, transparent 2px),
+    linear-gradient(90deg, #2a1a08 2px, transparent 2px),
+    repeating-conic-gradient(#7a5820 0% 25%, #644818 0% 50%);
+  background-size: 32px 32px, 32px 32px, 64px 64px;
+}
+
+.museum-wall {
+  position: absolute;
+  z-index: 4;
+  background-color: #3a3834;
+  background-image:
+    linear-gradient(90deg, transparent 30px, #242220 30px 32px),
+    linear-gradient(
+      #524e48 0 8px,
+      #3a3834 8px calc(100% - 12px),
+      #2a2824 calc(100% - 12px) calc(100% - 6px),
+      #161412 calc(100% - 6px)
+    );
+  background-size: 32px 100%, 100% 100%;
+  background-repeat: repeat, no-repeat;
+}
+
+.museum-wall-north {
+  background-image:
+    linear-gradient(90deg, transparent 30px, #242220 30px 32px),
+    linear-gradient(
+      #161412 0 6px,
+      #2a2824 6px 12px,
+      #3a3834 12px calc(100% - 8px),
+      #524e48 calc(100% - 8px)
+    );
+}
+
+.museum-spotlight {
+  position: absolute;
+  z-index: 5;
+  width: 320px;
+  height: 288px;
+  margin-left: -160px;
+  margin-top: -72px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+}
+
+.museum-picture {
+  position: absolute;
+  z-index: 6;
+  padding: 2px;
+  background: #e8c25a;
+  border: 4px solid #241808;
+  box-shadow:
+    inset 0 0 0 2px #f4e2a0,
+    4px 4px 0 #140e06;
+}
+
+.museum-picture-pixels {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+}
+
+.museum-shadow {
+  position: absolute;
+  z-index: 490;
+  width: 56px;
+  height: 16px;
+  transform: translate(-50%, 66px);
+  background: #120e08;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.museum .map-walker {
+  left: 0;
+  top: 0;
+  filter:
+    drop-shadow(2px 0 0 #1a1208)
+    drop-shadow(-2px 0 0 #1a1208)
+    drop-shadow(0 2px 0 #1a1208)
+    drop-shadow(0 -2px 0 #1a1208);
 }
 
 .nyc-map-canvas {
@@ -807,7 +915,8 @@
     padding: 0.9rem 1rem 1.1rem;
   }
 
-  .page.page-oct13 {
+  .page.page-oct13,
+  .page.page-museum {
     padding: 0;
     gap: 0;
   }
@@ -820,7 +929,8 @@
     padding-bottom: 0.65rem;
   }
 
-  .page.page-oct13 {
+  .page.page-oct13,
+  .page.page-museum {
     padding: 0;
   }
 

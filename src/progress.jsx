@@ -123,7 +123,6 @@ export function ProgressProvider({ children }) {
       selectedDay,
       isHome: selected === HOME,
       hasUnlocked: unlocked.length > 0,
-      allUnlocked: unlocked.length === days.length,
       isUnlocked(id) {
         return unlocked.includes(id)
       },
