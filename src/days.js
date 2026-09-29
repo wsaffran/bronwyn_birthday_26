@@ -65,7 +65,7 @@ export const days = [
     id: 3,
     password: 'testday3',
     title: 'Day 3',
-    kind: 'placeholder',
+    kind: 'ipod',
   }),
   withOpenDate(october(13), {
     id: 4,
