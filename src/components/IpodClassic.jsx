@@ -103,32 +103,7 @@ function PlayMark() {
   )
 }
 
-function PrevIcon() {
-  return (
-    <svg className="ipod-icon" viewBox="0 0 28 16" aria-hidden="true">
-      <path fill="currentColor" d="M12.2 1.1 1.8 8l10.4 6.9V1.1zm14 0L15.8 8l10.4 6.9V1.1z" />
-    </svg>
-  )
-}
-
-function NextIcon() {
-  return (
-    <svg className="ipod-icon" viewBox="0 0 28 16" aria-hidden="true">
-      <path fill="currentColor" d="M1.8 1.1v13.8L12.2 8 1.8 1.1zm14 0v13.8L26.2 8 15.8 1.1z" />
-    </svg>
-  )
-}
-
-function PlayPauseIcon() {
-  return (
-    <svg className="ipod-icon ipod-icon-play" viewBox="0 0 30 16" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M1.4 1.2v13.6L12.4 8 1.4 1.2zM15.2 1.2h3.3v13.6h-3.3V1.2zm5.6 0h3.3v13.6h-3.3V1.2z"
-      />
-    </svg>
-  )
-}
+const ipodPhoto = `${import.meta.env.BASE_URL}ipod-classic.png`
 
 export default function IpodClassic() {
   const count = ipodMessages.length
@@ -478,6 +453,7 @@ export default function IpodClassic() {
         data-screen={screen}
         onKeyDown={onKeyDown}
       >
+        <img className="ipod-photo" src={ipodPhoto} alt="" />
         <div className="ipod-screen">
           <div className="ipod-lcd">
             <div className="ipod-status">
@@ -552,41 +528,29 @@ export default function IpodClassic() {
             )}
           </div>
         </div>
-        <div className="ipod-controls">
-          <div
-            className="ipod-wheel"
-            ref={wheelRef}
-            data-zone={pressed || undefined}
-            onPointerDown={onWheelPointerDown}
-            onPointerMove={onWheelPointerMove}
-            onPointerUp={onWheelPointerUp}
-            onPointerCancel={() => {
-              dragRef.current = null
+        <div
+          className="ipod-wheel"
+          ref={wheelRef}
+          data-zone={pressed || undefined}
+          onPointerDown={onWheelPointerDown}
+          onPointerMove={onWheelPointerMove}
+          onPointerUp={onWheelPointerUp}
+          onPointerCancel={() => {
+            dragRef.current = null
+          }}
+          onContextMenu={(event) => event.preventDefault()}
+        >
+          <button
+            type="button"
+            className="ipod-center"
+            aria-label="Select"
+            tabIndex={-1}
+            onPointerDown={(event) => {
+              event.stopPropagation()
+              rootRef.current?.focus({ preventScroll: true })
             }}
-            onContextMenu={(event) => event.preventDefault()}
-          >
-            <span className="ipod-glyph ipod-glyph-menu">MENU</span>
-            <span className="ipod-glyph ipod-glyph-prev">
-              <PrevIcon />
-            </span>
-            <span className="ipod-glyph ipod-glyph-next">
-              <NextIcon />
-            </span>
-            <span className="ipod-glyph ipod-glyph-play">
-              <PlayPauseIcon />
-            </span>
-            <button
-              type="button"
-              className="ipod-center"
-              aria-label="Select"
-              tabIndex={-1}
-              onPointerDown={(event) => {
-                event.stopPropagation()
-                rootRef.current?.focus({ preventScroll: true })
-              }}
-              onClick={() => actionsRef.current.center()}
-            />
-          </div>
+            onClick={() => actionsRef.current.center()}
+          />
         </div>
         <audio
           ref={audioRef}
