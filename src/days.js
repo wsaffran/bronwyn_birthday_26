@@ -48,7 +48,7 @@ function withOpenDate(opensOn, rest) {
 export const days = [
   withOpenDate(october(10), {
     id: 1,
-    password: 'testday1',
+    password: 'vodka cranberry',
     title: 'A playlist, just for you',
     kind: 'music',
     playlistUrl: 'https://open.spotify.com/playlist/4ic6Tu4bKjm91RebrCAxOe',

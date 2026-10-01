@@ -29,6 +29,10 @@ function MusicGift({ day }) {
   )
 }
 
+function normalizePassword(value) {
+  return value.toLowerCase().replace(/\s+/g, '')
+}
+
 function PlaceholderGift({ day }) {
   return (
     <p className="lede">
@@ -56,7 +60,7 @@ export default function Day() {
   const unlocked = isUnlocked(day.id)
   function handleSubmit(event) {
     event.preventDefault()
-    if (password.trim() === day.password) {
+    if (normalizePassword(password) === normalizePassword(day.password)) {
       unlock(day.id)
       setError('')
       return
