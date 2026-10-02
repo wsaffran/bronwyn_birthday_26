@@ -312,18 +312,6 @@
     );
 }
 
-.museum-spotlight {
-  position: absolute;
-  z-index: 5;
-  width: 320px;
-  height: 288px;
-  margin-left: -160px;
-  margin-top: -72px;
-  pointer-events: none;
-  image-rendering: pixelated;
-  mix-blend-mode: screen;
-}
-
 .museum-picture {
   position: absolute;
   z-index: 6;

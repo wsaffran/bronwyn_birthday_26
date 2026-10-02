@@ -13,42 +13,6 @@ import {
 
 const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
 
-function PixelSpotlight({ style }) {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const cols = 40
-    const rows = 36
-    canvas.width = cols
-    canvas.height = rows
-    const ctx = canvas.getContext('2d')
-    const image = ctx.createImageData(cols, rows)
-    const spotlightHeight = 288
-    const canvasTop = style.top - 72
-    const floorY = museumFloors[0].y
-    for (let y = 0; y < rows; y++) {
-      const t = y / (rows - 1)
-      const half = 0.6 + t * (cols * 0.5 - 0.6)
-      const rowTop = canvasTop + (y / rows) * spotlightHeight
-      const down = rowTop < floorY ? 220 : 0
-      for (let x = 0; x < cols; x++) {
-        const dist = Math.abs(x + 0.5 - cols / 2)
-        if (dist > half || down === 0) continue
-        const i = (y * cols + x) * 4
-        image.data[i] = 255
-        image.data[i + 1] = 226
-        image.data[i + 2] = 160
-        image.data[i + 3] = dist > half - 1 ? Math.round(down * 0.45) : down
-      }
-    }
-    ctx.putImageData(image, 0, 0)
-  }, [style.top])
-
-  return <canvas ref={canvasRef} className="museum-spotlight" style={style} />
-}
-
 function PixelFrame({ src }) {
   const canvasRef = useRef(null)
 
@@ -287,9 +251,6 @@ export default function MuseumHall() {
             className={wall.face === 'north' ? 'museum-wall museum-wall-north' : 'museum-wall'}
             style={{ left: wall.x, top: wall.y, width: wall.w, height: wall.h }}
           />
-        ))}
-        {museumExhibits.map((exhibit) => (
-          <PixelSpotlight key={`${exhibit.id}-light`} style={{ left: exhibit.x, top: exhibit.y }} />
         ))}
         {museumExhibits.map((exhibit) => (
           <div
