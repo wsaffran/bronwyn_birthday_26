@@ -8,7 +8,7 @@ import {
   HALL_START,
   museumExhibits,
   museumFloors,
-  museumWalls,
+  museumFlorals,
 } from '../museumExhibits'
 
 const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
@@ -59,11 +59,10 @@ function rectClearance(x, y, rect) {
 }
 
 function stageCenterY() {
-  let top = Infinity
+  let top = Math.min(...museumExhibits.map((exhibit) => exhibit.y)) - 80
   let bottom = -Infinity
-  for (const rect of [...museumWalls, ...museumFloors]) {
-    top = Math.min(top, rect.y)
-    bottom = Math.max(bottom, rect.y + rect.h)
+  for (const floor of museumFloors) {
+    bottom = Math.max(bottom, floor.y + floor.h)
   }
   return (top + bottom) / 2
 }
@@ -269,16 +268,18 @@ export default function MuseumHall() {
             }}
           />
         ))}
-        {museumWalls.map((wall) => (
-          <div
-            key={wall.id}
-            className={wall.id === 'back' ? 'museum-wall museum-wall-back' : 'museum-wall'}
+        {museumFlorals.map((floral) => (
+          <img
+            key={floral.id}
+            className="museum-floral"
+            src={floralSrc}
+            alt=""
+            draggable={false}
             style={{
-              left: wall.x - screenReach,
-              top: wall.y,
-              width: wall.w + screenReach * 2,
-              height: wall.h,
-              ...(wall.id === 'back' ? { '--floral-src': `url("${floralSrc}")` } : null),
+              left: floral.x,
+              top: floral.y,
+              width: floral.w,
+              height: floral.h,
             }}
           />
         ))}

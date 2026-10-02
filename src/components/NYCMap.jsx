@@ -58,7 +58,7 @@ export default function NYCMap() {
       minZoom: MAP_MIN_ZOOM,
       maxZoom: MAP_MAX_ZOOM,
       zoomControl: false,
-      attributionControl: true,
+      attributionControl: false,
       dragging: false,
       touchZoom: false,
       scrollWheelZoom: false,
@@ -69,8 +69,6 @@ export default function NYCMap() {
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: MAP_MAX_ZOOM,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map)
 
     for (const pin of mapPins) {

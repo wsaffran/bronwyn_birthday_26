@@ -26,13 +26,10 @@ const caption = 'A placeholder label. The real caption goes here.'
 const photo = 'museum/placeholder.jpg'
 
 const floor = { x: WALL_X, y: 368, w: wallWidth, h: 192 }
-const wallTop = 128
+const floralWidth = 340
+const floralHeight = Math.round((floralWidth * 1024) / 769)
 
 export const museumFloors = [{ id: 'hall', ...floor }]
-
-export const museumWalls = [
-  { id: 'back', x: floor.x, y: wallTop, w: floor.w, h: floor.y - wallTop, face: 'south' },
-]
 
 const picture = { w: 108, h: 80, y: 208 }
 
@@ -40,6 +37,20 @@ const pictureXs = Array.from(
   { length: PICTURE_COUNT },
   (_, index) => WALL_X + SIDE_CLEARANCE + index * PICTURE_SPACING,
 )
+
+const pictureCenterY = picture.y + picture.h / 2
+// The linework is cropped on both sides near the bottom of the file.
+// Drop it behind the floor, and shift it right so the motif sits on the picture.
+const floralNudgeX = 18
+const floralNudgeY = 40
+
+export const museumFlorals = pictureXs.map((x, index) => ({
+  id: `floral-${index + 1}`,
+  x: x - floralWidth / 2 + floralNudgeX,
+  y: pictureCenterY - floralHeight / 2 + floralNudgeY,
+  w: floralWidth,
+  h: floralHeight,
+}))
 
 export const museumExhibits = pictureXs.map((x, index) => ({
   id: `picture-${index + 1}`,
