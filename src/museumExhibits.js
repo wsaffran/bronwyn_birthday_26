@@ -41,7 +41,7 @@ const pictureXs = Array.from(
 const pictureCenterY = picture.y + picture.h / 2
 // The linework is cropped on both sides near the bottom of the file.
 // Drop it behind the floor, and shift it right so the motif sits on the picture.
-const floralNudgeX = 18
+const floralNudgeX = 26
 const floralNudgeY = 40
 
 export const museumFlorals = pictureXs.map((x, index) => ({
