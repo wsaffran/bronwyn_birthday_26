@@ -13,6 +13,7 @@ import {
 
 const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
 const floorSrc = `${import.meta.env.BASE_URL}museum/floor-pattern.png`
+const floralSrc = `${import.meta.env.BASE_URL}floral-linework-white.png`
 
 function PixelFrame({ src }) {
   const canvasRef = useRef(null)
@@ -56,6 +57,18 @@ function rectClearance(x, y, rect) {
   const nearestY = Math.max(rect.y, Math.min(y, rect.y + rect.h))
   return -Math.hypot(x - nearestX, y - nearestY)
 }
+
+function stageCenterY() {
+  let top = Infinity
+  let bottom = -Infinity
+  for (const rect of [...museumWalls, ...museumFloors]) {
+    top = Math.min(top, rect.y)
+    bottom = Math.max(bottom, rect.y + rect.h)
+  }
+  return (top + bottom) / 2
+}
+
+const STAGE_CENTER_Y = stageCenterY()
 
 function floorClearance(x, y) {
   let best = -Infinity
@@ -113,6 +126,7 @@ export default function MuseumHall() {
   const nearbyIdRef = useRef(null)
   const [activeExhibit, setActiveExhibit] = useState(null)
   const [nearbyExhibit, setNearbyExhibit] = useState(null)
+  const [screenReach, setScreenReach] = useState(0)
 
   useEffect(() => {
     pausedRef.current = Boolean(activeExhibit)
@@ -140,7 +154,8 @@ export default function MuseumHall() {
     function placeScene() {
       const player = playerRef.current
       if (worldRef.current) {
-        worldRef.current.style.transform = `translate(${hall.clientWidth / 2 - player.x}px, ${hall.clientHeight / 2 - player.y}px)`
+        worldRef.current.style.transform = `translate(${hall.clientWidth / 2 - player.x}px, ${hall.clientHeight / 2 - STAGE_CENTER_Y}px)`
+        hall.style.setProperty('--walker-y-offset', `${player.y - STAGE_CENTER_Y}px`)
       }
       if (walkerRef.current) {
         walkerRef.current.style.left = `${player.x}px`
@@ -170,11 +185,18 @@ export default function MuseumHall() {
       setNearbyExhibit(inRange)
     }
 
+    function syncReach() {
+      const next = Math.ceil(hall.clientWidth / 2) + 4
+      setScreenReach((current) => (current === next ? current : next))
+    }
+
     placeScene()
     syncNearby()
+    syncReach()
 
     const resize = () => {
       if (cancelled) return
+      syncReach()
       placeScene()
     }
     const resizeObserver = new ResizeObserver(resize)
@@ -238,10 +260,11 @@ export default function MuseumHall() {
             key={floor.id}
             className="museum-floor"
             style={{
-              left: floor.x,
+              left: floor.x - screenReach,
               top: floor.y,
-              width: floor.w,
+              width: floor.w + screenReach * 2,
               height: floor.h,
+              backgroundPosition: `${screenReach}px center`,
               '--floor-src': `url("${floorSrc}")`,
             }}
           />
@@ -249,8 +272,14 @@ export default function MuseumHall() {
         {museumWalls.map((wall) => (
           <div
             key={wall.id}
-            className="museum-wall"
-            style={{ left: wall.x, top: wall.y, width: wall.w, height: wall.h }}
+            className={wall.id === 'back' ? 'museum-wall museum-wall-back' : 'museum-wall'}
+            style={{
+              left: wall.x - screenReach,
+              top: wall.y,
+              width: wall.w + screenReach * 2,
+              height: wall.h,
+              ...(wall.id === 'back' ? { '--floral-src': `url("${floralSrc}")` } : null),
+            }}
           />
         ))}
         {museumExhibits.map((exhibit) => (

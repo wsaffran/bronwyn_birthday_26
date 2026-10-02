@@ -287,7 +287,23 @@
 .museum-wall {
   position: absolute;
   z-index: 4;
-  background: #d9d6d1;
+  background: #141414;
+}
+
+.museum-wall-back {
+  overflow: hidden;
+}
+
+.museum-wall-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--floral-src);
+  background-repeat: repeat;
+  background-size: 340px auto;
+  background-position: center center;
+  opacity: 0.18;
+  pointer-events: none;
 }
 
 .museum-picture {
@@ -319,6 +335,10 @@
   background: #120e08;
   border-radius: 50%;
   pointer-events: none;
+}
+
+.museum .map-pin-open {
+  bottom: calc(50% + 3.55rem - var(--walker-y-offset, 0px));
 }
 
 .museum .map-walker {

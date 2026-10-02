@@ -11,7 +11,7 @@ export const HALL = {
 }
 
 export const HALL_START = {
-  x: 176,
+  x: WALL_X + 48,
   y: 464,
 }
 
@@ -25,15 +25,13 @@ export const PLAYER_RADIUS = 26
 const caption = 'A placeholder label. The real caption goes here.'
 const photo = 'museum/placeholder.jpg'
 
-export const museumFloors = [{ id: 'hall', x: WALL_X, y: 368, w: wallWidth, h: 192 }]
+const floor = { x: WALL_X, y: 368, w: wallWidth, h: 192 }
+const wallTop = 128
 
-const hallFloor = museumFloors[0]
-const floorBottom = hallFloor.y + hallFloor.h
+export const museumFloors = [{ id: 'hall', ...floor }]
 
 export const museumWalls = [
-  { id: 'back', x: WALL_X, y: 128, w: wallWidth, h: 240, face: 'south' },
-  { id: 'west', x: 64, y: 128, w: 64, h: floorBottom - 128 },
-  { id: 'east', x: eastX, y: 128, w: 64, h: floorBottom - 128 },
+  { id: 'back', x: floor.x, y: wallTop, w: floor.w, h: floor.y - wallTop, face: 'south' },
 ]
 
 const picture = { w: 108, h: 80, y: 208 }
