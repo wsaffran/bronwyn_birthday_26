@@ -249,7 +249,7 @@ export default function MuseumHall() {
         {museumWalls.map((wall) => (
           <div
             key={wall.id}
-            className={wall.face === 'north' ? 'museum-wall museum-wall-north' : 'museum-wall'}
+            className="museum-wall"
             style={{ left: wall.x, top: wall.y, width: wall.w, height: wall.h }}
           />
         ))}

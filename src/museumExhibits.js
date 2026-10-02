@@ -27,11 +27,13 @@ const photo = 'museum/placeholder.jpg'
 
 export const museumFloors = [{ id: 'hall', x: WALL_X, y: 368, w: wallWidth, h: 192 }]
 
+const hallFloor = museumFloors[0]
+const floorBottom = hallFloor.y + hallFloor.h
+
 export const museumWalls = [
   { id: 'back', x: WALL_X, y: 128, w: wallWidth, h: 240, face: 'south' },
-  { id: 'front', x: WALL_X, y: 560, w: wallWidth, h: 240, face: 'north' },
-  { id: 'west', x: 64, y: 128, w: 64, h: 672 },
-  { id: 'east', x: eastX, y: 128, w: 64, h: 672 },
+  { id: 'west', x: 64, y: 128, w: 64, h: floorBottom - 128 },
+  { id: 'east', x: eastX, y: 128, w: 64, h: floorBottom - 128 },
 ]
 
 const picture = { w: 108, h: 80, y: 208 }
