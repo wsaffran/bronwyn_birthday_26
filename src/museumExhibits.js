@@ -1,5 +1,12 @@
+const WALL_X = 128
+const SIDE_CLEARANCE = 256
+const PICTURE_COUNT = 6
+const PICTURE_SPACING = Math.round(512 * 0.7)
+const wallWidth = SIDE_CLEARANCE * 2 + PICTURE_SPACING * (PICTURE_COUNT - 1)
+const eastX = WALL_X + wallWidth
+
 export const HALL = {
-  width: 3392,
+  width: eastX + 64 + 128,
   height: 960,
 }
 
@@ -18,18 +25,23 @@ export const PLAYER_RADIUS = 26
 const caption = 'A placeholder label. The real caption goes here.'
 const photo = 'museum/placeholder.jpg'
 
-export const museumFloors = [{ id: 'hall', x: 128, y: 368, w: 3072, h: 192 }]
+export const museumFloors = [{ id: 'hall', x: WALL_X, y: 368, w: wallWidth, h: 192 }]
 
 export const museumWalls = [
-  { id: 'back', x: 128, y: 128, w: 3072, h: 240, face: 'south' },
-  { id: 'front', x: 128, y: 560, w: 3072, h: 240, face: 'north' },
+  { id: 'back', x: WALL_X, y: 128, w: wallWidth, h: 240, face: 'south' },
+  { id: 'front', x: WALL_X, y: 560, w: wallWidth, h: 240, face: 'north' },
   { id: 'west', x: 64, y: 128, w: 64, h: 672 },
-  { id: 'east', x: 3200, y: 128, w: 64, h: 672 },
+  { id: 'east', x: eastX, y: 128, w: 64, h: 672 },
 ]
 
 const picture = { w: 108, h: 80, y: 208 }
 
-export const museumExhibits = [384, 896, 1408, 1920, 2432, 2944].map((x, index) => ({
+const pictureXs = Array.from(
+  { length: PICTURE_COUNT },
+  (_, index) => WALL_X + SIDE_CLEARANCE + index * PICTURE_SPACING,
+)
+
+export const museumExhibits = pictureXs.map((x, index) => ({
   id: `picture-${index + 1}`,
   x,
   y: picture.y,

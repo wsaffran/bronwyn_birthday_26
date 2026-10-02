@@ -12,6 +12,7 @@ import {
 } from '../museumExhibits'
 
 const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
+const floorSrc = `${import.meta.env.BASE_URL}museum/floor-pattern.png`
 
 function PixelFrame({ src }) {
   const canvasRef = useRef(null)
@@ -241,7 +242,7 @@ export default function MuseumHall() {
               top: floor.y,
               width: floor.w,
               height: floor.h,
-              backgroundPosition: '0 0',
+              '--floor-src': `url("${floorSrc}")`,
             }}
           />
         ))}

@@ -277,12 +277,11 @@
 .museum-floor {
   position: absolute;
   z-index: 1;
-  background-color: #5a4014;
-  background-image:
-    linear-gradient(#2a1a08 2px, transparent 2px),
-    linear-gradient(90deg, #2a1a08 2px, transparent 2px),
-    repeating-conic-gradient(#7a5820 0% 25%, #644818 0% 50%);
-  background-size: 32px 32px, 32px 32px, 64px 64px;
+  background-color: #1a140c;
+  background-image: var(--floor-src);
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: left center;
 }
 
 .museum-wall {
