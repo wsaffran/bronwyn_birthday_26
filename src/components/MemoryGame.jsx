@@ -3,11 +3,10 @@ import { createPortal } from 'react-dom'
 import { cardBack, photos } from '../memoryCards'
 
 const MISS_MS = 750
+const RESULT_MS = 3400
 const COLUMNS = 4
 const ROWS = 6
 const PAIR_COUNT = (COLUMNS * ROWS) / 2
-const CONFETTI_COUNT = 50
-const CONFETTI_COLORS = ['#ff1a1a', '#ffffff', '#ffd6a5', '#ffb4a2', '#ff8a80']
 const BEST_COOKIE = 'bronwyn-memory-best'
 const LEGACY_BEST_KEY = 'memory-best-moves'
 const BEST_MAX_AGE = 60 * 60 * 24 * 400
@@ -51,24 +50,6 @@ function winMessage(moves) {
   return 'You need to try that again, EXPEDITIOUSLY'
 }
 
-function makeConfetti() {
-  return Array.from({ length: CONFETTI_COUNT }, (_, id) => {
-    const wide = Math.random() < 0.35
-    return {
-      id,
-      left: Math.random() * 100,
-      delay: Math.random() * 2.4,
-      duration: 2.8 + Math.random() * 1.8,
-      drift: (Math.random() - 0.5) * 28,
-      spin: (Math.random() < 0.5 ? -1 : 1) * (220 + Math.random() * 520),
-      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-      width: wide ? 8 + Math.random() * 8 : 6 + Math.random() * 4,
-      height: wide ? 5 + Math.random() * 4 : 10 + Math.random() * 8,
-      radius: Math.random() < 0.2 ? '999px' : '1px',
-    }
-  })
-}
-
 function cardSrc(path) {
   if (!path) return null
   if (/^(?:[a-z]+:|\/\/)/i.test(path)) return path
@@ -105,10 +86,11 @@ export default function MemoryGame() {
   const [moves, setMoves] = useState(0)
   const [best, setBest] = useState(readBest)
   const [resultOpen, setResultOpen] = useState(false)
-  const [confetti, setConfetti] = useState([])
+  const [resultMoves, setResultMoves] = useState(0)
+  const [resultKey, setResultKey] = useState(0)
+  const [simScore, setSimScore] = useState('12')
   const hideTimer = useRef(0)
-  const againRef = useRef(null)
-  const returnFocus = useRef(null)
+  const resultTimer = useRef(0)
   const movesRef = useRef(0)
   const flippedRef = useRef([])
   const matchedRef = useRef(new Set())
@@ -117,26 +99,13 @@ export default function MemoryGame() {
   const won = matched.size === cards.length
   const rows = Math.ceil(cards.length / COLUMNS)
 
-  useEffect(() => () => window.clearTimeout(hideTimer.current), [])
-
-  useEffect(() => {
-    if (!resultOpen) return undefined
-    const previous = document.activeElement
-    returnFocus.current = previous instanceof HTMLElement ? previous : null
-    againRef.current?.focus()
-
-    function onKeyDown(event) {
-      if (event.key !== 'Escape') return
-      event.preventDefault()
-      setResultOpen(false)
-    }
-
-    window.addEventListener('keydown', onKeyDown)
-    return () => {
-      window.removeEventListener('keydown', onKeyDown)
-      returnFocus.current?.focus()
-    }
-  }, [resultOpen])
+  useEffect(
+    () => () => {
+      window.clearTimeout(hideTimer.current)
+      window.clearTimeout(resultTimer.current)
+    },
+    [],
+  )
 
   function playAgain() {
     window.clearTimeout(hideTimer.current)
@@ -149,12 +118,25 @@ export default function MemoryGame() {
     setLocked(false)
     movesRef.current = 0
     setMoves(0)
+    window.clearTimeout(resultTimer.current)
     setResultOpen(false)
-    setConfetti([])
   }
 
-  function dismissResult() {
-    setResultOpen(false)
+  function openResult(score) {
+    setResultMoves(score)
+    setResultKey((key) => key + 1)
+    setResultOpen(true)
+    window.clearTimeout(resultTimer.current)
+    resultTimer.current = window.setTimeout(() => {
+      setResultOpen(false)
+    }, RESULT_MS)
+  }
+
+  function simulateWin(event) {
+    event.preventDefault()
+    const score = Number(simScore)
+    if (!Number.isInteger(score) || score < 1) return
+    openResult(score)
   }
 
   function reveal(key) {
@@ -183,8 +165,7 @@ export default function MemoryGame() {
       setMatched(nextMatched)
       setFlipped([])
       if (nextMatched.size === cards.length) {
-        setConfetti(makeConfetti())
-        setResultOpen(true)
+        openResult(nextMoves)
         setBest((current) => {
           if (current != null && current <= nextMoves) return current
           writeBest(nextMoves)
@@ -247,51 +228,33 @@ export default function MemoryGame() {
         </div>
       </div>
       <div className="memory-again-slot">
-        {won && !resultOpen ? (
+        {won ? (
           <button type="button" className="memory-again" onClick={playAgain}>
             Play again
           </button>
         ) : null}
       </div>
+      <form className="memory-sim" onSubmit={simulateWin}>
+        <label htmlFor="memory-sim-score">Score</label>
+        <input
+          id="memory-sim-score"
+          type="number"
+          min="1"
+          step="1"
+          inputMode="numeric"
+          value={simScore}
+          onChange={(event) => setSimScore(event.target.value)}
+        />
+        <button type="submit">Simulate win</button>
+      </form>
       {resultOpen
         ? createPortal(
-            <>
-              <div className="memory-win-backdrop" onClick={dismissResult} />
-              <div className="memory-confetti" aria-hidden="true">
-                {confetti.map((piece) => (
-                  <span
-                    key={piece.id}
-                    className="memory-confetti-piece"
-                    style={{
-                      '--confetti-left': `${piece.left}%`,
-                      '--confetti-delay': `${piece.delay}s`,
-                      '--confetti-duration': `${piece.duration}s`,
-                      '--confetti-drift': `${piece.drift}vw`,
-                      '--confetti-spin': `${piece.spin}deg`,
-                      '--confetti-color': piece.color,
-                      '--confetti-width': `${piece.width}px`,
-                      '--confetti-height': `${piece.height}px`,
-                      '--confetti-radius': piece.radius,
-                    }}
-                  />
-                ))}
-              </div>
-              <div
-                className="memory-win"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="memory-win-title"
-                aria-describedby="memory-win-score"
-              >
-                <p className="memory-win-score" id="memory-win-score">
-                  {moves} {moves === 1 ? 'move' : 'moves'}
-                </p>
-                <h2 id="memory-win-title">{winMessage(moves)}</h2>
-                <button ref={againRef} type="button" onClick={playAgain}>
-                  Play again
-                </button>
-              </div>
-            </>,
+            <div key={resultKey} className="memory-win" role="status">
+              <p className="memory-win-score">
+                {resultMoves} {resultMoves === 1 ? 'move' : 'moves'}
+              </p>
+              <p className="memory-win-message">{winMessage(resultMoves)}</p>
+            </div>,
             document.body,
           )
         : null}

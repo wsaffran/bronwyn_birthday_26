@@ -884,40 +884,37 @@
   transform: none;
 }
 
-.memory-win-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  background: rgb(0 0 0 / 45%);
+.memory-sim {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
 }
 
-.memory-confetti {
-  position: fixed;
-  inset: 0;
-  z-index: 41;
-  overflow: hidden;
-  pointer-events: none;
+.memory-sim label {
+  font-family: 'Share Tech Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.memory-confetti-piece {
-  position: absolute;
-  top: 0;
-  left: var(--confetti-left);
-  width: var(--confetti-width);
-  height: var(--confetti-height);
-  background: var(--confetti-color);
-  border-radius: var(--confetti-radius);
-  animation: memory-confetti-fall var(--confetti-duration) linear var(--confetti-delay) infinite both;
+.memory-sim input {
+  width: 4.5rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 0.55rem;
+  background: transparent;
+  color: inherit;
 }
 
-@keyframes memory-confetti-fall {
-  from {
-    transform: translate3d(0, -12vh, 0) rotate(0deg);
-  }
-
-  to {
-    transform: translate3d(var(--confetti-drift), 110vh, 0) rotate(var(--confetti-spin));
-  }
+.memory-sim button {
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 0.55rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
 
 .memory-win {
@@ -927,15 +924,39 @@
   left: 50%;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 0.85rem;
+  align-items: center;
+  gap: 0.45rem;
   width: min(22rem, calc(100vw - 2rem));
   padding: 1.15rem 1.15rem 1.2rem;
   border: 1px solid rgb(255 255 255 / 28%);
   background: #111;
   color: #fff;
   text-align: center;
+  pointer-events: none;
   transform: translate(-50%, -50%);
+  animation: memory-win-pop 3.4s ease forwards;
+}
+
+@keyframes memory-win-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  78% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -54%);
+  }
 }
 
 .memory-win-score {
@@ -948,25 +969,11 @@
   color: var(--led-red, #ff1a1a);
 }
 
-.memory-win h2 {
+.memory-win-message {
   margin: 0;
   font-size: 1.35rem;
   line-height: 1.25;
   text-wrap: balance;
-}
-
-.memory-win button {
-  align-self: stretch;
-  border: 1px solid rgb(255 255 255 / 45%);
-  border-radius: 0.55rem;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
-.memory-win button:focus-visible {
-  outline: 2px solid var(--led-red, #ff1a1a);
-  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -974,8 +981,8 @@
     transition: none;
   }
 
-  .memory-confetti-piece {
-    display: none;
+  .memory-win {
+    animation: none;
   }
 }
 
