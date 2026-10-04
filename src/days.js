@@ -77,7 +77,7 @@ export const days = [
     id: 5,
     password: 'testday5',
     title: 'Day 5',
-    kind: 'placeholder',
+    kind: 'memory',
   }),
   withOpenDate(october(15), {
     id: 6,
