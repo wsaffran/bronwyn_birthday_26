@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import MuseumHall from '../components/MuseumHall'
 import NYCMap from '../components/NYCMap'
 import CatCollage from '../components/CatCollage'
@@ -72,10 +72,17 @@ export default function Day() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [misses, setMisses] = useState(0)
+  const [showPass, setShowPass] = useState(false)
+  const passButtonRef = useRef(null)
 
   useEffect(() => {
     setMisses(0)
+    setShowPass(false)
   }, [day?.id])
+
+  useEffect(() => {
+    if (showPass) passButtonRef.current?.focus()
+  }, [showPass])
 
   if (!day) return null
 
@@ -89,7 +96,9 @@ export default function Day() {
       setError('')
       return
     }
-    setMisses((count) => count + 1)
+    const nextMisses = misses + 1
+    setMisses(nextMisses)
+    if (nextMisses >= 10) setShowPass(true)
     setError(weakPasswordHint(password, day) || 'Sorry pookie, please try again')
   }
 
@@ -196,6 +205,35 @@ export default function Day() {
           </p>
         ))}
       </div>
+      {showPass ? (
+        <div className="lock-pass-backdrop" onClick={() => setShowPass(false)}>
+          <div
+            className="lock-pass"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="lock-pass-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="lock-pass-close"
+              aria-label="Close"
+              onClick={() => setShowPass(false)}
+            >
+              ×
+            </button>
+            <p id="lock-pass-title">Don't worry babe, this one is ON ME!</p>
+            <button
+              ref={passButtonRef}
+              type="button"
+              className="lock-pass-enter"
+              onClick={() => unlock(day.id)}
+            >
+              Enter
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>,
   )
 }
