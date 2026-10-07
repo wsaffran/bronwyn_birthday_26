@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import MuseumHall from '../components/MuseumHall'
 import NYCMap from '../components/NYCMap'
 import CatCollage from '../components/CatCollage'
@@ -34,6 +34,22 @@ function normalizePassword(value) {
   return value.toLowerCase().replace(/\s+/g, '')
 }
 
+function passwordMatches(input, day) {
+  const normalized = normalizePassword(input)
+  const accepted = [day.password, ...(day.passwordAliases ?? [])]
+  return accepted.some((password) => normalizePassword(password) === normalized)
+}
+
+function weakPasswordHint(input, day) {
+  const guess = normalizePassword(input)
+  if (!guess) return ''
+  const matched = (day.weakPasswords ?? []).some((password) => normalizePassword(password) === guess)
+  if (!matched) return ''
+  const hints = day.weakPasswordHints ?? {}
+  const hintKey = Object.keys(hints).find((key) => normalizePassword(key) === guess)
+  return hintKey ? hints[hintKey] : ''
+}
+
 function PlaceholderGift({ day }) {
   return (
     <p className="lede">
@@ -52,22 +68,29 @@ function GiftBody({ day }) {
 }
 
 export default function Day() {
-  const { selectedDay: day, isUnlocked, isDateOpen, canAttempt, unlock, selectHome } =
-    useProgress()
+  const { selectedDay: day, isUnlocked, isDateOpen, canAttempt, unlock } = useProgress()
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [misses, setMisses] = useState(0)
+
+  useEffect(() => {
+    setMisses(0)
+  }, [day?.id])
 
   if (!day) return null
 
   const unlocked = isUnlocked(day.id)
+  const hints = day.hints ?? []
+  const hintsEarned = Math.min(hints.length, Math.floor(misses / 3))
   function handleSubmit(event) {
     event.preventDefault()
-    if (normalizePassword(password) === normalizePassword(day.password)) {
+    if (passwordMatches(password, day)) {
       unlock(day.id)
       setError('')
       return
     }
-    setError('Try the clue again.')
+    setMisses((count) => count + 1)
+    setError(weakPasswordHint(password, day) || 'Sorry pookie, please try again')
   }
 
   if (!canAttempt(day.id)) {
@@ -76,9 +99,6 @@ export default function Day() {
         <main className="page">
           <h1>Not yet</h1>
           <p className="lede">This gift opens on {day.label}.</p>
-          <button type="button" onClick={selectHome}>
-            Home
-          </button>
         </main>
       )
     }
@@ -89,9 +109,6 @@ export default function Day() {
         <p className="lede">
           I'm sorry Bronwyn, but you are not allowed to open this gift yet.
         </p>
-        <button type="button" onClick={selectHome}>
-          Home
-        </button>
       </main>
     )
   }
@@ -134,33 +151,51 @@ export default function Day() {
   }
 
   return frame(
-    <>
-      <h1>Unlock {day.label}</h1>
-      <p className="lede">
-        Enter the password from your clue to unlock.
-      </p>
-      <form className="lock-form" onSubmit={handleSubmit}>
-        <label htmlFor={`${day.slug}-password`}>Password</label>
-        <input
-          id={`${day.slug}-password`}
-          type="password"
+    <div className="lock-screen">
+      <div className="lock-screen-main">
+        <h1>Unlock {day.label}</h1>
+        <form
+          className="lock-form"
           autoComplete="off"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          enterKeyHint="go"
-          value={password}
-          onChange={(event) => {
-            setPassword(event.target.value)
-            if (error) setError('')
-          }}
-        />
-        {error ? <p>{error}</p> : null}
-        <button type="submit">Enter</button>
-      </form>
-      <button type="button" onClick={selectHome}>
-        Home
-      </button>
-    </>,
+          data-1p-ignore=""
+          data-lpignore="true"
+          data-protonpass-ignore=""
+          data-bwignore=""
+          onSubmit={handleSubmit}
+        >
+          <input
+            id={`${day.slug}-unlock`}
+            aria-label="Password"
+            placeholder="Password"
+            name="unlock"
+            type="text"
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="go"
+            data-1p-ignore=""
+            data-lpignore="true"
+            data-protonpass-ignore=""
+            data-bwignore=""
+            data-form-type="other"
+            value={password}
+            onChange={(event) => {
+              setPassword(event.target.value)
+              if (error) setError('')
+            }}
+          />
+          <p className="lock-feedback">{error}</p>
+          <button type="submit">Enter</button>
+        </form>
+      </div>
+      <div className="lock-hints">
+        {hints.slice(0, hintsEarned).map((hint) => (
+          <p className="lede" key={hint}>
+            {hint}
+          </p>
+        ))}
+      </div>
+    </div>,
   )
 }

@@ -238,6 +238,45 @@
   padding: 0.7rem 0.75rem;
 }
 
+.lock-feedback {
+  min-height: 1.4em;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.lock-screen {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  justify-items: center;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+}
+
+.lock-screen-main {
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(1.4rem + 1.4em);
+  width: 100%;
+}
+
+.lock-hints {
+  grid-row: 3;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: min(32rem, 100%);
+}
+
+.lock-hints:not(:empty) {
+  padding-top: 0.9rem;
+}
+
 .page.page-oct13,
 .page.page-museum {
   padding: 0;

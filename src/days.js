@@ -49,6 +49,20 @@ export const days = [
   withOpenDate(october(10), {
     id: 1,
     password: 'vodka cranberry',
+    passwordAliases: ['vodka cran'],
+    weakPasswords: ['drink', 'vodka', 'alcohol', 'dance', 'salsa', 'tu con el'],
+    weakPasswordHints: {
+      drink: 'Close! Be a bit more specific!',
+      vodka: 'You are half way there!',
+      alcohol: 'Close! Be a bit more specific!',
+      dance: 'Not everything we shared that night was a dance',
+      salsa: 'Not everything we shared that night was a dance',
+      'tu con el': 'Not everything we shared that night was a dance',
+    },
+    hints: [
+      'Think about what was in our hands',
+      'You might find half the answer in a half-empty bottle in our fridge',
+    ],
     title: 'A playlist, just for you',
     kind: 'music',
     playlistUrl: 'https://open.spotify.com/playlist/4ic6Tu4bKjm91RebrCAxOe',
