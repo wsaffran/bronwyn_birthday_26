@@ -1,4 +1,4 @@
-import { BIRTHDAY, toLocalDate } from './constants'
+import { toLocalDate } from './constants'
 
 const MONTH_LONG = [
   'January',
@@ -46,7 +46,7 @@ function withOpenDate(opensOn, rest) {
 }
 
 export const days = [
-  withOpenDate(october(10), {
+  withOpenDate(october(11), {
     id: 1,
     password: 'vodka cranberry',
     passwordAliases: ['vodka cran'],
@@ -69,40 +69,34 @@ export const days = [
     embedUrl:
       'https://open.spotify.com/embed/playlist/4ic6Tu4bKjm91RebrCAxOe?utm_source=generator&theme=0',
   }),
-  withOpenDate(october(11), {
+  withOpenDate(october(12), {
     id: 2,
     password: 'testday2',
     title: 'A museum of us',
     kind: 'museum',
   }),
-  withOpenDate(october(12), {
+  withOpenDate(october(13), {
     id: 3,
     password: 'testday3',
     title: 'Day 3',
     kind: 'ipod',
   }),
-  withOpenDate(october(13), {
+  withOpenDate(october(14), {
     id: 4,
     password: 'testday4',
     title: 'Day 4',
     kind: 'map',
   }),
-  withOpenDate(october(14), {
+  withOpenDate(october(15), {
     id: 5,
     password: 'testday5',
     title: 'Day 5',
     kind: 'memory',
   }),
-  withOpenDate(october(15), {
+  withOpenDate(october(16), {
     id: 6,
     password: 'testday6',
     title: 'Day 6',
-    kind: 'placeholder',
-  }),
-  withOpenDate(BIRTHDAY, {
-    id: 7,
-    password: 'testday7',
-    title: 'Day 7',
     kind: 'placeholder',
   }),
 ]

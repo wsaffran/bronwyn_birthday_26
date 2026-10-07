@@ -122,7 +122,7 @@ export default function Day() {
     )
   }
 
-  const collage = day.slug === 'oct-14' && !unlocked
+  const collage = day.kind === 'memory' && !unlocked
   const mapPage = day.kind === 'map' && unlocked
   const museumPage = day.kind === 'museum' && unlocked
   const ipodPage = day.kind === 'ipod' && unlocked
