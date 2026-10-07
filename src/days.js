@@ -61,7 +61,7 @@ export const days = [
     },
     hints: [
       'Think about what was in our hands',
-      'You might find half the answer in a half-empty bottle in our fridge',
+      'You might find half the answer in a half-empty bottle in our fridge. Sorry you wont be able to check!',
     ],
     title: 'A playlist, just for you',
     kind: 'music',
