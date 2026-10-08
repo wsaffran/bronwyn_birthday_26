@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import MuseumHall from '../components/MuseumHall'
 import NYCMap from '../components/NYCMap'
 import CatCollage from '../components/CatCollage'
@@ -73,16 +73,18 @@ export default function Day() {
   const [error, setError] = useState('')
   const [misses, setMisses] = useState(0)
   const [showPass, setShowPass] = useState(false)
-  const passButtonRef = useRef(null)
+  const [answerRevealed, setAnswerRevealed] = useState(false)
 
   useEffect(() => {
     setMisses(0)
     setShowPass(false)
+    setAnswerRevealed(false)
   }, [day?.id])
 
-  useEffect(() => {
-    if (showPass) passButtonRef.current?.focus()
-  }, [showPass])
+  function closePass() {
+    setShowPass(false)
+    setAnswerRevealed(false)
+  }
 
   if (!day) return null
 
@@ -160,7 +162,7 @@ export default function Day() {
   }
 
   return frame(
-    <div className="lock-screen">
+    <div className={showPass ? 'lock-screen lock-screen-revealed' : 'lock-screen'}>
       <div className="lock-screen-main">
         <h1>Unlock {day.label}</h1>
         <form
@@ -206,7 +208,7 @@ export default function Day() {
         ))}
       </div>
       {showPass ? (
-        <div className="lock-pass-backdrop" onClick={() => setShowPass(false)}>
+        <div className="lock-pass-backdrop" onClick={closePass}>
           <div
             className="lock-pass"
             role="dialog"
@@ -218,19 +220,25 @@ export default function Day() {
               type="button"
               className="lock-pass-close"
               aria-label="Close"
-              onClick={() => setShowPass(false)}
+              onClick={closePass}
             >
               ×
             </button>
-            <p id="lock-pass-title">Don't worry babe, this one is ON ME!</p>
-            <button
-              ref={passButtonRef}
-              type="button"
-              className="lock-pass-enter"
-              onClick={() => unlock(day.id)}
-            >
-              Enter
-            </button>
+            <img className="lock-pass-face" src="/lock-smile.png" alt="" />
+            <div className="lock-pass-copy">
+              <p id="lock-pass-title">
+                Don't worry babe...
+                <br />
+                this one is ON ME!
+              </p>
+              {answerRevealed ? (
+                <p className="lock-pass-password">{day.password}</p>
+              ) : (
+                <button type="button" className="lock-pass-reveal" onClick={() => setAnswerRevealed(true)}>
+                  Reveal answer
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ) : null}
