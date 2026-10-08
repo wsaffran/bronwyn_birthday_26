@@ -20,17 +20,16 @@ function HomeLetter() {
     <div className="home-letter">
       <h1 className="visually-hidden">A letter for Bronwyn</h1>
       <p>
-        Hi pookie. You made it to Japan and your birthday week! Even though we are halfway
-        around the world, I'm gonna be keeping you company through one of the
-        ways I know best. Visit me here whenever you like, I'll have something
-        new every day.
+        Hi pookie, I'm glad you made it here! I hope you are having THE BEST time in Japan.
+        I'm excited to show you what I've been up to. 
       </p>
       <p>
-        Before you left, I gave you 7 envelopes, one for each day you're in
-        Japan. On each day, open the envelope for that day. Somewhere inside
-        will be a clue that will help you unlock that page.
+        Before you left, I gave you 6 dated envelopes, one for each day you're in
+        Japan. You'll also find the corresponding day at the bottom of your screen. 
+        For each one, open that envelope and enter the answer to the riddle. 
+        Don't worry, if you get it wrong, I'll give you a hint or two.
       </p>
-      <p>See you soon and have the best day in Japan!</p>
+      <p>I will see you here soon :)</p>
     </div>
   )
 }
