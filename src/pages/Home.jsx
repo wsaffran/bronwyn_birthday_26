@@ -36,13 +36,7 @@ function HomeLetter() {
 }
 
 export default function Home() {
-  const { nextDay, canAttempt, selectDay } = useProgress()
-  const nextIsOpen = Boolean(nextDay) && canAttempt(nextDay.id)
-  const copy = nextIsOpen
-    ? `Continue with ${nextDay.label}`
-    : nextDay
-      ? `Come back on ${nextDay.label}!`
-      : 'Hi, you have unlocked every day. I hope you had fun!'
+  const { nextDay } = useProgress()
 
   return (
     <>
@@ -55,12 +49,8 @@ export default function Home() {
         <HomeHeading />
         <div className="home-body">
           <HomeLetter />
-          {nextIsOpen ? (
-            <button type="button" onClick={() => selectDay(nextDay.id)}>
-              {copy}
-            </button>
-          ) : (
-            <p className="lede">{copy}</p>
+          {nextDay ? null : (
+            <p className="lede">Hi, you have unlocked every day. I hope you had fun!</p>
           )}
         </div>
       </main>
