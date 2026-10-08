@@ -205,11 +205,8 @@
 
 .embed-frame {
   width: min(42rem, 100%);
-  overflow: hidden;
   border-radius: 12px;
   background: transparent;
-  clip-path: inset(0 round 12px);
-  transform: translateZ(0);
 }
 
 .embed-frame iframe {
@@ -219,6 +216,22 @@
   border: 0;
   border-radius: 12px;
   background: transparent;
+}
+
+.page.page-music {
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.page.page-music .embed-frame {
+  flex: 1 1 auto;
+  align-self: center;
+  min-height: 0;
+  width: min(42rem, 100%);
+}
+
+.page.page-music .embed-frame iframe {
+  height: 100%;
 }
 
 .lock-form {

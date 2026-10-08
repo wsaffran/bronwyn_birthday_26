@@ -125,6 +125,7 @@ export default function Day() {
   }
 
   const collage = day.kind === 'memory' && !unlocked
+  const musicPage = day.kind === 'music' && unlocked
   const mapPage = day.kind === 'map' && unlocked
   const museumPage = day.kind === 'museum' && unlocked
   const ipodPage = day.kind === 'ipod' && unlocked
@@ -135,6 +136,7 @@ export default function Day() {
     if (museumPage) return <main className="page page-museum">{body}</main>
     if (ipodPage) return <main className="page page-ipod">{body}</main>
     if (memoryPage) return <main className="page page-memory">{body}</main>
+    if (musicPage) return <main className="page page-music">{body}</main>
     if (!collage) return <main className="page">{body}</main>
     return (
       <main className="page page-oct14">

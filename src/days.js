@@ -65,9 +65,9 @@ export const days = [
     ],
     title: 'A playlist, just for you',
     kind: 'music',
-    playlistUrl: 'https://open.spotify.com/playlist/4ic6Tu4bKjm91RebrCAxOe',
+    playlistUrl: 'https://open.spotify.com/playlist/6T230heijZByxfNrJDcWW2',
     embedUrl:
-      'https://open.spotify.com/embed/playlist/4ic6Tu4bKjm91RebrCAxOe?utm_source=generator&theme=0',
+      'https://open.spotify.com/embed/playlist/6T230heijZByxfNrJDcWW2?utm_source=generator&si=8a1871336ceb44c0',
   }),
   withOpenDate(october(12), {
     id: 2,
