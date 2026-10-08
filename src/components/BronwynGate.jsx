@@ -31,7 +31,7 @@ function stripAdmitParam() {
   if (next !== current) window.history.replaceState(null, '', next)
 }
 
-export default function BronwynGate() {
+export default function BronwynGate({ children }) {
   const [admitted] = useState(admitFromEntry)
   const dialogRef = useRef(null)
 
@@ -40,14 +40,11 @@ export default function BronwynGate() {
   }, [admitted])
 
   useLayoutEffect(() => {
-    const stage = document.querySelector('.site-shell')
-    if (!stage || admitted) return undefined
-    stage.setAttribute('inert', '')
+    if (admitted) return undefined
     dialogRef.current?.focus()
-    return () => stage.removeAttribute('inert')
   }, [admitted])
 
-  if (admitted) return null
+  if (admitted) return children
 
   return (
     <div

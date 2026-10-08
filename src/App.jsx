@@ -13,8 +13,9 @@ function Stage() {
 function App() {
   return (
     <ProgressProvider>
-      <Stage />
-      <BronwynGate />
+      <BronwynGate>
+        <Stage />
+      </BronwynGate>
     </ProgressProvider>
   )
 }
