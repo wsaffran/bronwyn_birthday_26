@@ -1,3 +1,4 @@
+import BronwynGate from './components/BronwynGate'
 import Layout from './components/Layout'
 import { ProgressProvider, useProgress } from './progress'
 import Home from './pages/Home'
@@ -13,6 +14,7 @@ function App() {
   return (
     <ProgressProvider>
       <Stage />
+      <BronwynGate />
     </ProgressProvider>
   )
 }
