@@ -9,9 +9,6 @@ import { useProgress } from '../progress'
 function MusicGift({ day }) {
   return (
     <>
-      <p className="lede">
-        Press play to listen to the playlist.
-      </p>
       <div className="embed-frame">
         <iframe
           title="Birthday playlist on Spotify"
@@ -151,7 +148,8 @@ export default function Day() {
       day.kind === 'map' ||
       day.kind === 'museum' ||
       day.kind === 'ipod' ||
-      day.kind === 'memory'
+      day.kind === 'memory' ||
+      day.kind === 'music'
     ) {
       return frame(<GiftBody day={day} />)
     }
