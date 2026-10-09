@@ -72,6 +72,7 @@ export const days = [
   withOpenDate(october(12), {
     id: 2,
     password: 'expeditiously',
+    passwordAliases: ['expaditiously', 'expiditiously'],
     hints: [
       'quickly!',
       'When in doubt consult the thesaurus ^^^',
@@ -82,18 +83,21 @@ export const days = [
   withOpenDate(october(13), {
     id: 3,
     password: 'lilly of the valley',
+    passwordAliases: ['lily of the valley'],
     title: 'Day 3',
     kind: 'ipod',
   }),
   withOpenDate(october(14), {
     id: 4,
     password: 'anna sui',
+    passwordAliases: ['ana sui'],
     title: 'Day 4',
     kind: 'map',
   }),
   withOpenDate(october(15), {
     id: 5,
     password: 'shima-enaga',
+    passwordAliases: ['shima enaga'],
     title: 'Day 5',
     kind: 'memory',
   }),
