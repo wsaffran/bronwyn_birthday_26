@@ -219,8 +219,37 @@
 }
 
 .page.page-music {
-  justify-content: flex-start;
+  justify-content: safe center;
   overflow: hidden;
+  gap: 1.65rem;
+}
+
+.playlist-key {
+  flex-shrink: 0;
+  width: min(36rem, 100%);
+  margin: 0;
+  padding: 0.15rem 0 0.4rem;
+  list-style: none;
+  counter-reset: song;
+  text-align: left;
+}
+
+.playlist-key li {
+  counter-increment: song;
+  display: grid;
+  grid-template-columns: 1.75rem 1fr;
+  gap: 0.35rem;
+  align-items: baseline;
+  padding: 0.22rem 0;
+  line-height: 1.35;
+}
+
+.playlist-key li::before {
+  content: counter(song) '.';
+  font-family: 'Share Tech Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: var(--led-red, #ff1a1a);
 }
 
 .lock-form {
@@ -1357,10 +1386,6 @@
     width: 2.15rem;
     height: 2.15rem;
     margin: -1.075rem 0 0 -1.075rem;
-  }
-
-  .embed-frame iframe {
-    height: 152px;
   }
 }
 

@@ -23,6 +23,11 @@ function MusicGift({ day }) {
           loading="lazy"
         />
       </div>
+      <ol className="playlist-key">
+        {(day.songKey ?? []).map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ol>
     </>
   )
 }

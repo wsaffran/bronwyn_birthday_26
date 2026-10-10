@@ -67,7 +67,18 @@ export const days = [
     kind: 'music',
     playlistUrl: 'https://open.spotify.com/playlist/6T230heijZByxfNrJDcWW2',
     embedUrl:
-      'https://open.spotify.com/embed/playlist/6T230heijZByxfNrJDcWW2?utm_source=generator&si=b5f3b2038c814d3f',
+      'https://open.spotify.com/embed/playlist/6T230heijZByxfNrJDcWW2?utm_source=generator&theme=0&si=0dce24edc785428d',
+    songKey: [
+      'You captured me at first sight',
+      'I wondered who you were',
+      'You gave me hope',
+      'You let me fall into this with you',
+      'And showed me what love can be',
+      'Forever',
+      'A life together to look back on',
+      'Let’s make the most of it',
+      'I’ve never believed in anyone more',
+    ],
   }),
   withOpenDate(october(12), {
     id: 2,
