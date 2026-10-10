@@ -67,7 +67,7 @@ export const days = [
     kind: 'music',
     playlistUrl: 'https://open.spotify.com/playlist/6T230heijZByxfNrJDcWW2',
     embedUrl:
-      'https://open.spotify.com/embed/playlist/6T230heijZByxfNrJDcWW2?utm_source=generator&si=8a1871336ceb44c0',
+      'https://open.spotify.com/embed/playlist/6T230heijZByxfNrJDcWW2?utm_source=generator&si=b5f3b2038c814d3f',
   }),
   withOpenDate(october(12), {
     id: 2,

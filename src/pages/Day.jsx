@@ -11,18 +11,18 @@ function MusicGift({ day }) {
     <>
       <div className="embed-frame">
         <iframe
+          data-testid="embed-iframe"
           title="Birthday playlist on Spotify"
           src={day.embedUrl}
           width="100%"
-          height="352"
+          height="152"
+          style={{ borderRadius: 12 }}
+          frameBorder="0"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           allowFullScreen
           loading="lazy"
         />
       </div>
-      <a href={day.playlistUrl} target="_blank" rel="noreferrer">
-        Open in Spotify
-      </a>
     </>
   )
 }
