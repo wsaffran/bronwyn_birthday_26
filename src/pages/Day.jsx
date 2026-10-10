@@ -184,7 +184,7 @@ export default function Day() {
       {frame(
     <div className={showPass ? 'lock-screen lock-screen-revealed' : 'lock-screen'}>
       <div className="lock-screen-main">
-        <h1>{day.label}</h1>
+        <h1 className="lock-title-ja">{day.labelJa}</h1>
         <form
           className="lock-form"
           autoComplete="off"

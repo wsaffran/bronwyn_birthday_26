@@ -40,6 +40,7 @@ function withOpenDate(opensOn, rest) {
     opensOn,
     slug: `oct-${opensOn.date}`,
     label: formatDayLabel({ opensOn }),
+    labelJa: formatJapaneseDayLabel({ opensOn }),
     chipMonth: MONTH_SHORT[opensOn.month],
     chipDate: String(opensOn.date),
   }
@@ -130,6 +131,10 @@ export function getOpenDate(day) {
 
 export function isOpenOn(day, now = new Date()) {
   return now >= getOpenDate(day)
+}
+
+export function formatJapaneseDayLabel(day) {
+  return `${day.opensOn.month + 1}月${day.opensOn.date}日`
 }
 
 export function formatDayLabel(day) {

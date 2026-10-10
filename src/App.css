@@ -267,6 +267,10 @@
 .lock-form input {
   width: 100%;
   padding: 0.7rem 0.75rem;
+  appearance: none;
+  border: 1px solid rgb(133, 133, 133);
+  background: #000;
+  color: #fff;
 }
 
 .lock-form button {
@@ -315,6 +319,13 @@
   align-items: center;
   gap: calc(1.4rem + 1.4em);
   width: 100%;
+}
+
+.lock-title-ja {
+  font-family: 'Zen Old Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  font-weight: 600;
+  font-size: clamp(2.25rem, 10vw, 3.05rem);
+  line-height: 1.1;
 }
 
 .lock-hints {
