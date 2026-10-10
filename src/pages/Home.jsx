@@ -1,7 +1,7 @@
+import FloralBackdrop from '../components/FloralBackdrop'
 import { useProgress } from '../progress'
 
 const letteringSrc = `${import.meta.env.BASE_URL}chiaki-lettering-white.png`
-const floralSrc = `${import.meta.env.BASE_URL}floral-linework-white.png`
 
 function HomeHeading() {
   return (
@@ -39,11 +39,7 @@ export default function Home() {
 
   return (
     <>
-      <div
-        className="home-floral"
-        style={{ '--floral-src': `url("${floralSrc}")` }}
-        aria-hidden="true"
-      />
+      <FloralBackdrop />
       <main className="page page-home">
         <HomeHeading />
         <div className="home-body">

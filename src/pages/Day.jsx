@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import FloralBackdrop from '../components/FloralBackdrop'
 import MuseumHall from '../components/MuseumHall'
 import NYCMap from '../components/NYCMap'
 import CatCollage from '../components/CatCollage'
@@ -76,16 +77,27 @@ export default function Day() {
   const [misses, setMisses] = useState(0)
   const [showPass, setShowPass] = useState(false)
   const [answerRevealed, setAnswerRevealed] = useState(false)
+  const [revealedHints, setRevealedHints] = useState(() => new Set())
 
   useEffect(() => {
     setMisses(0)
     setShowPass(false)
     setAnswerRevealed(false)
+    setRevealedHints(new Set())
   }, [day?.id])
 
   function closePass() {
     setShowPass(false)
     setAnswerRevealed(false)
+  }
+
+  function revealHint(index) {
+    setRevealedHints((current) => {
+      if (current.has(index)) return current
+      const next = new Set(current)
+      next.add(index)
+      return next
+    })
   }
 
   if (!day) return null
@@ -166,10 +178,13 @@ export default function Day() {
     )
   }
 
-  return frame(
+  return (
+    <>
+      <FloralBackdrop />
+      {frame(
     <div className={showPass ? 'lock-screen lock-screen-revealed' : 'lock-screen'}>
       <div className="lock-screen-main">
-        <h1>Unlock {day.label}</h1>
+        <h1>{day.label}</h1>
         <form
           className="lock-form"
           autoComplete="off"
@@ -182,7 +197,7 @@ export default function Day() {
           <input
             id={`${day.slug}-unlock`}
             aria-label="Password"
-            placeholder="Password"
+            placeholder="Answer"
             name="unlock"
             type="text"
             autoComplete="off"
@@ -206,11 +221,17 @@ export default function Day() {
         </form>
       </div>
       <div className="lock-hints">
-        {hints.slice(0, hintsEarned).map((hint) => (
-          <p className="lede" key={hint}>
-            {hint}
-          </p>
-        ))}
+        {hints.slice(0, hintsEarned).map((hint, index) =>
+          revealedHints.has(index) ? (
+            <p className="lede" key={index}>
+              {hint}
+            </p>
+          ) : (
+            <button type="button" className="lock-hint-reveal" key={index} onClick={() => revealHint(index)}>
+              Hint {index + 1}
+            </button>
+          ),
+        )}
       </div>
       {showPass ? (
         <div className="lock-pass-backdrop" onClick={closePass}>
@@ -248,5 +269,7 @@ export default function Day() {
         </div>
       ) : null}
     </div>,
+      )}
+    </>
   )
 }

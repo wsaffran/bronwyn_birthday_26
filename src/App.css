@@ -8,7 +8,7 @@
   padding-left: env(safe-area-inset-left);
 }
 
-.home-floral {
+.floral-backdrop {
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -37,7 +37,7 @@
   );
 }
 
-.home-floral::before {
+.floral-backdrop::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -269,6 +269,29 @@
   padding: 0.7rem 0.75rem;
 }
 
+.lock-form button {
+  appearance: none;
+  align-self: center;
+  width: 80%;
+  min-height: 2.5rem;
+  padding: 0.2rem 1rem;
+  border: 1px solid rgb(133, 133, 133);
+  border-radius: 1rem;
+  background: #000;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.lock-form button:active {
+  filter: brightness(0.88);
+}
+
+.lock-form button:focus-visible {
+  outline: 2px solid var(--led-red, #ff1a1a);
+  outline-offset: 3px;
+}
+
 .lock-feedback {
   min-height: 1.4em;
   margin: 0;
@@ -393,7 +416,8 @@
   cursor: pointer;
 }
 
-.lock-pass-reveal {
+.lock-pass-reveal,
+.lock-hint-reveal {
   min-height: 0;
   padding: 0;
   border: 0;
@@ -419,7 +443,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lock-pass-reveal {
+  .lock-pass-reveal,
+  .lock-hint-reveal {
     animation: none;
   }
 }
