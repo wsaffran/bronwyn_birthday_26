@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import FloralBackdrop from '../components/FloralBackdrop'
 import MuseumHall from '../components/MuseumHall'
 import NYCMap from '../components/NYCMap'
@@ -78,13 +78,7 @@ export default function Day() {
   const [showPass, setShowPass] = useState(false)
   const [answerRevealed, setAnswerRevealed] = useState(false)
   const [revealedHints, setRevealedHints] = useState(() => new Set())
-
-  useEffect(() => {
-    setMisses(0)
-    setShowPass(false)
-    setAnswerRevealed(false)
-    setRevealedHints(new Set())
-  }, [day?.id])
+  const unlocked = Boolean(day && isUnlocked(day.id))
 
   function closePass() {
     setShowPass(false)
@@ -102,7 +96,6 @@ export default function Day() {
 
   if (!day) return null
 
-  const unlocked = isUnlocked(day.id)
   const hints = day.hints ?? []
   const hintsEarned = Math.min(hints.length, Math.floor(misses / 3))
   function handleSubmit(event) {

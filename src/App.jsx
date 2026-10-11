@@ -6,8 +6,9 @@ import Day from './pages/Day'
 import './App.css'
 
 function Stage() {
-  const { isHome, selected } = useProgress()
-  return <Layout>{isHome ? <Home /> : <Day key={selected} />}</Layout>
+  const { isHome, selected, isUnlocked } = useProgress()
+  const dayKey = `${selected}-${isUnlocked(selected) ? 'open' : 'locked'}`
+  return <Layout>{isHome ? <Home /> : <Day key={dayKey} />}</Layout>
 }
 
 function App() {

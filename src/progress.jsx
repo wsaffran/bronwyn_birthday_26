@@ -148,6 +148,15 @@ export function ProgressProvider({ children }) {
         })
         setSelected(id)
       },
+      relock(id) {
+        if (id === 1) localStorage.removeItem(LEGACY_MUSIC_KEY)
+        setUnlocked((current) => {
+          if (!current.includes(id)) return current
+          const next = current.filter((value) => value !== id)
+          persistUnlockedDays(next)
+          return next
+        })
+      },
     }
   }, [now, selected, skipDateLocks, unlocked])
 
