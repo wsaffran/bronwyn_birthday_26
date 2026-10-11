@@ -478,6 +478,14 @@ export const mapPins = [
     photo: 'pins/img-4463.jpg',
   },
   {
+    id: 'img-4467',
+    lat: 40.7545783,
+    lng: -73.96183,
+    title: '',
+    subtitle: '',
+    photo: 'pins/img-4467.jpg',
+  },
+  {
     id: 'img-4474',
     lat: 40.728725,
     lng: -73.9878472,
