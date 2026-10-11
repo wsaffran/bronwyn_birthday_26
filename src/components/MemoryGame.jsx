@@ -43,9 +43,10 @@ function writeBest(value) {
 }
 
 function winMessage(moves) {
-  if (moves <= 12) return 'HOLY HOW DID YOU DO THAT!'
-  if (moves <= 19) return 'HELL YEAH! THAT IS MY POOKIE BEAR!'
-  if (moves <= 26) return 'DAMN, YOU KNOW HOJI SO WELL!'
+  if (moves <= 12) return 'WHAT!!! PERFECT SCORE!!!!!'
+  if (moves <= 19) return 'HOLY HOW DID YOU DO THAT!'
+  if (moves <= 28) return 'HELL YEAH! THAT IS MY POOKIE BEAR!'
+  if (moves <= 36) return 'DAMN, YOU KNOW HOJI SO WELL!'
   if (moves <= 50) return 'VERY NICE POOKIE, BUT I THINK YOU COULD DO BETTER!'
   return 'OOF, YOU NEED TO TRY THAT AGAIN, EXPEDITIOUSLY!'
 }
