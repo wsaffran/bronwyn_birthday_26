@@ -89,8 +89,8 @@ export const days = [
       'quickly!',
       'When in doubt consult the thesaurus ^^^',
     ],
-    title: 'A museum of us',
-    kind: 'museum',
+    title: 'Day 2',
+    kind: 'memory',
   }),
   withOpenDate(october(13), {
     id: 3,
@@ -110,8 +110,8 @@ export const days = [
     id: 5,
     password: 'shima-enaga',
     passwordAliases: ['shima enaga'],
-    title: 'Day 5',
-    kind: 'memory',
+    title: 'A museum of us',
+    kind: 'museum',
   }),
   withOpenDate(october(16), {
     id: 6,
