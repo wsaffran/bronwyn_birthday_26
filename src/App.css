@@ -1102,39 +1102,6 @@
   transform: none;
 }
 
-.memory-sim {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  width: 100%;
-}
-
-.memory-sim label {
-  font-family: 'Share Tech Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.memory-sim input {
-  width: 4.5rem;
-  padding: 0.35rem 0.5rem;
-  border: 1px solid rgb(255 255 255 / 45%);
-  border-radius: 0.55rem;
-  background: transparent;
-  color: inherit;
-}
-
-.memory-sim button {
-  border: 1px solid rgb(255 255 255 / 45%);
-  border-radius: 0.55rem;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
 .memory-win {
   position: fixed;
   z-index: 42;

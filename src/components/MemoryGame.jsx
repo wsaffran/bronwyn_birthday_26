@@ -44,10 +44,10 @@ function writeBest(value) {
 
 function winMessage(moves) {
   if (moves <= 12) return 'HOLY HOW DID YOU DO THAT!'
-  if (moves <= 19) return 'I always knew you were wicked smart'
-  if (moves <= 26) return 'I knew you knew Hoji well'
-  if (moves <= 50) return 'I bet you can beat that!'
-  return 'You need to try that again, EXPEDITIOUSLY'
+  if (moves <= 19) return 'HELL YEAH! THAT IS MY POOKIE BEAR!'
+  if (moves <= 26) return 'DAMN, YOU KNOW HOJI SO WELL!'
+  if (moves <= 50) return 'VERY NICE POOKIE, BUT I THINK YOU COULD DO BETTER!'
+  return 'OOF, YOU NEED TO TRY THAT AGAIN, EXPEDITIOUSLY!'
 }
 
 function cardSrc(path) {
@@ -88,7 +88,6 @@ export default function MemoryGame() {
   const [resultOpen, setResultOpen] = useState(false)
   const [resultMoves, setResultMoves] = useState(0)
   const [resultKey, setResultKey] = useState(0)
-  const [simScore, setSimScore] = useState('12')
   const hideTimer = useRef(0)
   const resultTimer = useRef(0)
   const movesRef = useRef(0)
@@ -130,13 +129,6 @@ export default function MemoryGame() {
     resultTimer.current = window.setTimeout(() => {
       setResultOpen(false)
     }, RESULT_MS)
-  }
-
-  function simulateWin(event) {
-    event.preventDefault()
-    const score = Number(simScore)
-    if (!Number.isInteger(score) || score < 1) return
-    openResult(score)
   }
 
   function reveal(key) {
@@ -234,19 +226,6 @@ export default function MemoryGame() {
           </button>
         ) : null}
       </div>
-      <form className="memory-sim" onSubmit={simulateWin}>
-        <label htmlFor="memory-sim-score">Score</label>
-        <input
-          id="memory-sim-score"
-          type="number"
-          min="1"
-          step="1"
-          inputMode="numeric"
-          value={simScore}
-          onChange={(event) => setSimScore(event.target.value)}
-        />
-        <button type="submit">Simulate win</button>
-      </form>
       {resultOpen
         ? createPortal(
             <div key={resultKey} className="memory-win" role="status">
