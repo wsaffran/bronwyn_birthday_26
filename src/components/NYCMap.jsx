@@ -204,7 +204,7 @@ export default function NYCMap() {
         <button
           type="button"
           className="map-pin-open"
-          aria-label={`Open ${nearbyPin.title}`}
+          aria-label={nearbyPin.title ? `Open ${nearbyPin.title}` : 'Open'}
           onClick={openNearbyPin}
         >
           Open

@@ -755,10 +755,23 @@
   color: #fff;
 }
 
+.map-modal-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
 .map-modal h2 {
   margin: 0;
   font-size: 1.15rem;
   line-height: 1.25;
+}
+
+.map-modal-subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: rgb(255 255 255 / 72%);
 }
 
 .map-modal-photo {

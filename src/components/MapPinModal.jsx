@@ -27,10 +27,16 @@ export default function MapPinModal({ pin, onClose }) {
         className="map-modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="map-pin-title"
+        aria-labelledby={pin.title ? 'map-pin-title' : undefined}
+        aria-label={pin.title ? undefined : 'Photo'}
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 id="map-pin-title">{pin.title}</h2>
+        {pin.title || pin.subtitle ? (
+          <div className="map-modal-heading">
+            {pin.title ? <h2 id="map-pin-title">{pin.title}</h2> : null}
+            {pin.subtitle ? <p className="map-modal-subtitle">{pin.subtitle}</p> : null}
+          </div>
+        ) : null}
         {pin.photo ? (
           <img
             className="map-modal-photo"
