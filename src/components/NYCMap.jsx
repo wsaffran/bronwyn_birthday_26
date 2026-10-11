@@ -6,19 +6,82 @@ import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import Joystick from './Joystick'
 import MapPinModal from './MapPinModal'
-import {
-  MAP_MAX_ZOOM,
-  MAP_MIN_ZOOM,
-  MAP_START,
-  PIN_OPEN_RADIUS_PX,
-  mapPins,
-} from '../mapPins'
-
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({ iconUrl, iconRetinaUrl, shadowUrl })
+import { MAP_MAX_ZOOM, MAP_MIN_ZOOM, MAP_START, mapPins } from '../mapPins'
 
 const SPEED_PX_PER_SEC = 180
+const CLUSTER_PX = 30
+const TARGET_GAP_PX = 30
+const SPREAD_ENTER_PX = 155
+const SPREAD_EXIT_PX = 180
+const MAX_SHIFT_PX = 30
+const SEPARATION_STEPS = 8
 const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
+const pinImgUrl = window.devicePixelRatio > 1 ? iconRetinaUrl : iconUrl
+
+const pinIcon = L.divIcon({
+  className: 'map-pin-marker',
+  iconSize: [48, 56],
+  iconAnchor: [24, 56],
+  html: `<img class="map-pin-shadow" src="${shadowUrl}" alt="" draggable="false" /><img class="map-pin-img" src="${pinImgUrl}" alt="" draggable="false" />`,
+})
+
+function separate(pos, mover, other, moverShare) {
+  let dx = pos[other].x - pos[mover].x
+  let dy = pos[other].y - pos[mover].y
+  let len = Math.hypot(dx, dy)
+  if (len < 1) {
+    const angle = ((mover * 2 + other) * Math.PI) / 4
+    dx = Math.cos(angle)
+    dy = Math.sin(angle)
+    len = 1
+  }
+  if (len >= TARGET_GAP_PX) return
+  const push = TARGET_GAP_PX - len
+  const ux = (dx / len) * push
+  const uy = (dy / len) * push
+  pos[mover].x -= ux * moverShare
+  pos[mover].y -= uy * moverShare
+  if (moverShare < 1) {
+    const otherShare = 1 - moverShare
+    pos[other].x += ux * otherShare
+    pos[other].y += uy * otherShare
+  }
+}
+
+function spreadTargets(points, engagedPairs) {
+  const pos = points.map((point) => L.point(point.x, point.y))
+  const movable = new Array(points.length).fill(false)
+  for (const [i, j] of engagedPairs) {
+    movable[i] = true
+    movable[j] = true
+  }
+
+  for (let step = 0; step < SEPARATION_STEPS; step++) {
+    for (const [i, j] of engagedPairs) separate(pos, i, j, 0.5)
+    for (let i = 0; i < pos.length; i++) {
+      if (!movable[i]) continue
+      for (let k = 0; k < pos.length; k++) {
+        if (i === k || movable[k]) continue
+        const dx = points[k].x - points[i].x
+        const dy = points[k].y - points[i].y
+        if (Math.hypot(dx, dy) >= CLUSTER_PX) continue
+        separate(pos, i, k, 1)
+      }
+    }
+    for (let i = 0; i < pos.length; i++) {
+      if (!movable[i]) continue
+      const dx = pos[i].x - points[i].x
+      const dy = pos[i].y - points[i].y
+      const shift = Math.hypot(dx, dy)
+      if (shift <= MAX_SHIFT_PX) continue
+      const scale = MAX_SHIFT_PX / shift
+      pos[i].x = points[i].x + dx * scale
+      pos[i].y = points[i].y + dy * scale
+    }
+  }
+
+  return pos
+}
 
 export default function NYCMap() {
   const canvasRef = useRef(null)
@@ -27,9 +90,7 @@ export default function NYCMap() {
   const vectorRef = useRef({ x: 0, y: 0 })
   const pausedRef = useRef(false)
   const walkerRef = useRef(null)
-  const nearbyIdRef = useRef(null)
   const [activePin, setActivePin] = useState(null)
-  const [nearbyPin, setNearbyPin] = useState(null)
 
   useEffect(() => {
     pausedRef.current = Boolean(activePin)
@@ -43,11 +104,6 @@ export default function NYCMap() {
   const closePin = useCallback(() => {
     setActivePin(null)
   }, [])
-
-  const openNearbyPin = useCallback(() => {
-    if (!nearbyPin) return
-    setActivePin(nearbyPin)
-  }, [nearbyPin])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -71,6 +127,10 @@ export default function NYCMap() {
       maxZoom: MAP_MAX_ZOOM,
     }).addTo(map)
 
+    const markers = []
+    const spreadPairs = new Set()
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
     for (const pin of mapPins) {
       if (pin.circleRadius) {
         L.circle([pin.lat, pin.lng], {
@@ -82,33 +142,82 @@ export default function NYCMap() {
           interactive: false,
         }).addTo(map)
       }
-      L.marker([pin.lat, pin.lng], {
-        title: pin.title,
-        interactive: false,
-        keyboard: false,
-      }).addTo(map)
+      const marker = L.marker([pin.lat, pin.lng], {
+        icon: pinIcon,
+        title: pin.title || undefined,
+        keyboard: true,
+      })
+      marker.on('click', () => setActivePin(pin))
+      marker.addTo(map)
+      const icon = marker.getElement()
+      if (icon) {
+        icon.setAttribute('role', 'button')
+        icon.setAttribute('aria-label', pin.title ? `Open ${pin.title}` : 'Open photo')
+      }
+      markers.push(marker)
     }
 
-    function syncPins(mapInstance) {
-      if (cancelled) return
-      const center = mapInstance.latLngToContainerPoint(playerRef.current)
-      let nearest = null
-      let nearestDist = Infinity
+    function updatePins(mapInstance, dt) {
+      const player = mapInstance.latLngToContainerPoint(playerRef.current)
+      const truth = mapPins.map((pin) =>
+        mapInstance.latLngToContainerPoint([pin.lat, pin.lng]),
+      )
+      const zoom = Math.round(mapInstance.getZoom())
+      const engaged = []
+      const nextSpread = new Set()
 
-      for (const pin of mapPins) {
-        const point = mapInstance.latLngToContainerPoint([pin.lat, pin.lng])
-        const dist = point.distanceTo(center)
-        if (dist < nearestDist) {
-          nearestDist = dist
-          nearest = pin
+      if (zoom > MAP_MIN_ZOOM) {
+        for (let i = 0; i < mapPins.length; i++) {
+          for (let j = i + 1; j < mapPins.length; j++) {
+            const dx = truth[j].x - truth[i].x
+            const dy = truth[j].y - truth[i].y
+            if (Math.hypot(dx, dy) > CLUSTER_PX) continue
+            const near = Math.hypot(
+              player.x - (truth[i].x + truth[j].x) / 2,
+              player.y - (truth[i].y + truth[j].y) / 2,
+            )
+            const key = `${mapPins[i].id}|${mapPins[j].id}`
+            const limit = spreadPairs.has(key) ? SPREAD_EXIT_PX : SPREAD_ENTER_PX
+            if (near > limit) continue
+            nextSpread.add(key)
+            engaged.push([i, j])
+          }
         }
       }
 
-      const inRange = nearest && nearestDist <= PIN_OPEN_RADIUS_PX ? nearest : null
-      const nextId = inRange?.id ?? null
-      if (nearbyIdRef.current === nextId) return
-      nearbyIdRef.current = nextId
-      setNearbyPin(inRange)
+      spreadPairs.clear()
+      for (const key of nextSpread) spreadPairs.add(key)
+
+      const goals = engaged.length ? spreadTargets(truth, engaged) : truth
+      const step = reduceMotion ? 1 : 1 - Math.exp(-14 * dt)
+
+      for (let i = 0; i < markers.length; i++) {
+        const marker = markers[i]
+        const goal = goals[i]
+        const current = mapInstance.latLngToContainerPoint(marker.getLatLng())
+        const dx = goal.x - current.x
+        const dy = goal.y - current.y
+        const dist = Math.hypot(dx, dy)
+        const fanned = Math.hypot(goal.x - truth[i].x, goal.y - truth[i].y) > 1
+        marker.getElement()?.classList.toggle('is-fanned', fanned)
+        if (marker.options.zIndexOffset !== (fanned ? 500 : 0)) {
+          marker.setZIndexOffset(fanned ? 500 : 0)
+        }
+
+        if (dist < 0.4) {
+          if (!fanned) {
+            const at = marker.getLatLng()
+            const pin = mapPins[i]
+            if (Math.abs(at.lat - pin.lat) > 1e-7 || Math.abs(at.lng - pin.lng) > 1e-7) {
+              marker.setLatLng([pin.lat, pin.lng])
+            }
+          }
+          continue
+        }
+
+        const next = L.point(current.x + dx * step, current.y + dy * step)
+        marker.setLatLng(mapInstance.containerPointToLatLng(next))
+      }
     }
 
     mapRef.current = map
@@ -118,7 +227,7 @@ export default function NYCMap() {
       if (cancelled || !mapRef.current) return
       map.invalidateSize()
       map.setView(playerRef.current, map.getZoom(), { animate: false })
-      syncPins(map)
+      updatePins(map, 0.05)
     }
 
     const resizeObserver = new ResizeObserver(resize)
@@ -155,7 +264,7 @@ export default function NYCMap() {
         walkerRef.current?.classList.remove('is-walking')
       }
 
-      if (mapInstance) syncPins(mapInstance)
+      if (mapInstance) updatePins(mapInstance, dt)
 
       rafId = requestAnimationFrame(tick)
     }
@@ -200,16 +309,6 @@ export default function NYCMap() {
         alt=""
         draggable={false}
       />
-      {nearbyPin && !activePin ? (
-        <button
-          type="button"
-          className="map-pin-open"
-          aria-label={nearbyPin.title ? `Open ${nearbyPin.title}` : 'Open'}
-          onClick={openNearbyPin}
-        >
-          Open
-        </button>
-      ) : null}
       <button
         type="button"
         className="map-home"

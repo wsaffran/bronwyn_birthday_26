@@ -7,9 +7,6 @@ export const MAP_START = {
 export const MAP_MIN_ZOOM = 13
 export const MAP_MAX_ZOOM = 19
 
-/** Screen-pixel reach from the avatar (map center) to a pin's tip. */
-export const PIN_OPEN_RADIUS_PX = 110
-
 // title is the heading shown when this pin opens. subtitle is the smaller line under it.
 // Leave either blank.
 export const mapPins = [

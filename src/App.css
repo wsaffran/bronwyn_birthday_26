@@ -589,6 +589,44 @@
   font: inherit;
 }
 
+.leaflet-marker-icon.map-pin-marker {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.map-pin-shadow,
+.map-pin-img {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.map-pin-shadow {
+  left: 12px;
+  bottom: 0;
+  width: 41px;
+  height: 41px;
+}
+
+.map-pin-img {
+  left: 50%;
+  bottom: 0;
+  width: 25px;
+  height: 41px;
+  transform: translateX(-50%);
+}
+
+.map-pin-marker.is-fanned .map-pin-img {
+  filter: drop-shadow(0 8px 3px rgb(0 0 0 / 32%));
+}
+
+.map-pin-marker:active .map-pin-img {
+  transform: translateX(-50%) translateY(1px) scale(0.96);
+}
+
 .map-walker {
   position: absolute;
   left: 50%;
