@@ -6,6 +6,7 @@ import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import Joystick from './Joystick'
 import MapPinModal from './MapPinModal'
+import MapSettings from './MapSettings'
 import { MAP_MAX_ZOOM, MAP_MIN_ZOOM, MAP_START, mapPins } from '../mapPins'
 
 const SPEED_PX_PER_SEC = 180
@@ -19,6 +20,15 @@ const SPREAD_ENTER_PX = 180
 const SPREAD_EXIT_PX = 180
 const MAX_SHIFT_PX = 30
 const SEPARATION_STEPS = 8
+const DEFAULT_MAP_SETTINGS = {
+  joystick: true,
+  touchMove: false,
+  openBubble: false,
+  openButton: false,
+  clickPins: true,
+  zoomButtons: true,
+  homeButton: true,
+}
 const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
 const pinImgUrl = window.devicePixelRatio > 1 ? iconRetinaUrl : iconUrl
 
@@ -40,7 +50,9 @@ function vectorToward(dx, dy, reach) {
 function eventHitsControl(event) {
   const target = event.target
   if (!(target instanceof Element)) return false
-  return Boolean(target.closest('button, a, input, textarea, .map-joystick, .leaflet-marker-icon'))
+  return Boolean(
+    target.closest('button, a, input, textarea, .map-joystick, .map-settings, .leaflet-marker-icon'),
+  )
 }
 
 function separate(pos, mover, other, moverShare) {
@@ -112,8 +124,13 @@ export default function NYCMap() {
   const pausedRef = useRef(false)
   const walkerRef = useRef(null)
   const nearbyIdRef = useRef(null)
+  const markersRef = useRef([])
+  const [settings, setSettings] = useState(DEFAULT_MAP_SETTINGS)
+  const settingsRef = useRef(settings)
   const [activePin, setActivePin] = useState(null)
   const [nearbyPin, setNearbyPin] = useState(null)
+
+  settingsRef.current = settings
 
   useEffect(() => {
     pausedRef.current = Boolean(activePin)
@@ -136,6 +153,33 @@ export default function NYCMap() {
     if (!nearbyPin) return
     setActivePin(nearbyPin)
   }, [nearbyPin])
+
+  const updateSetting = useCallback((key, value) => {
+    setSettings((current) => ({ ...current, [key]: value }))
+  }, [])
+
+  useEffect(() => {
+    if (settings.touchMove) return
+    holdRef.current = null
+    holdPointerRef.current = null
+    holdMarkerRef.current?.classList.remove('is-active')
+  }, [settings.touchMove])
+
+  useEffect(() => {
+    for (const marker of markersRef.current) {
+      const icon = marker.getElement()
+      if (!icon) continue
+      if (settings.clickPins) {
+        icon.setAttribute('role', 'button')
+        icon.removeAttribute('aria-hidden')
+        icon.tabIndex = 0
+      } else {
+        icon.removeAttribute('role')
+        icon.setAttribute('aria-hidden', 'true')
+        icon.tabIndex = -1
+      }
+    }
+  }, [settings.clickPins])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -179,15 +223,24 @@ export default function NYCMap() {
         title: pin.title || undefined,
         keyboard: true,
       })
-      marker.on('click', () => setActivePin(pin))
+      marker.on('click', () => {
+        if (!settingsRef.current.clickPins) return
+        setActivePin(pin)
+      })
       marker.addTo(map)
       const icon = marker.getElement()
       if (icon) {
-        icon.setAttribute('role', 'button')
         icon.setAttribute('aria-label', pin.title ? `Open ${pin.title}` : 'Open photo')
+        if (settingsRef.current.clickPins) {
+          icon.setAttribute('role', 'button')
+        } else {
+          icon.setAttribute('aria-hidden', 'true')
+          icon.tabIndex = -1
+        }
       }
       markers.push(marker)
     }
+    markersRef.current = markers
 
     function updatePins(mapInstance, dt) {
       const player = mapInstance.latLngToContainerPoint(playerRef.current)
@@ -304,6 +357,7 @@ export default function NYCMap() {
     }
 
     function onPointerDown(event) {
+      if (!settingsRef.current.touchMove) return
       if (pausedRef.current || holdPointerRef.current !== null) return
       if (event.button != null && event.button !== 0) return
       if (eventHitsControl(event)) return
@@ -355,7 +409,7 @@ export default function NYCMap() {
       lastTime = now
       const mapInstance = mapRef.current
       let vector = vectorRef.current
-      const hold = holdRef.current
+      const hold = settingsRef.current.touchMove ? holdRef.current : null
       if (hold) {
         const dx = hold.x - canvas.clientWidth / 2
         const dy = hold.y - canvas.clientHeight / 2
@@ -402,6 +456,7 @@ export default function NYCMap() {
       window.removeEventListener('pointerup', onPointerUp)
       window.removeEventListener('pointercancel', onPointerUp)
       clearHold()
+      markersRef.current = []
       map.remove()
       mapRef.current = null
     }
@@ -425,8 +480,11 @@ export default function NYCMap() {
     map.setView(playerRef.current, nextZoom, { animate: false })
   }
 
+  const canOpenNearby = Boolean(nearbyPin && !activePin)
+  const openLabel = nearbyPin?.title ? `Open ${nearbyPin.title}` : 'Open photo'
+
   return (
-    <div className="nyc-map">
+    <div className={settings.clickPins ? 'nyc-map' : 'nyc-map pins-locked'}>
       <div ref={canvasRef} className="nyc-map-canvas" />
       <img
         ref={walkerRef}
@@ -436,35 +494,54 @@ export default function NYCMap() {
         draggable={false}
       />
       <div ref={holdMarkerRef} className="map-hold-target" />
-      <button
-        type="button"
-        className="map-home"
-        aria-label="Return to drop-off"
-        onClick={goHome}
-      >
-        Home
-      </button>
+      {settings.homeButton ? (
+        <button
+          type="button"
+          className="map-home"
+          aria-label="Return to drop-off"
+          onClick={goHome}
+        >
+          Home
+        </button>
+      ) : null}
+      <MapSettings settings={settings} onChange={updateSetting} />
+      {settings.openBubble && canOpenNearby ? (
+        <button
+          type="button"
+          className="map-pin-open"
+          aria-label={openLabel}
+          onClick={openNearbyPin}
+        >
+          Open
+        </button>
+      ) : null}
       <div className="map-stick-stack">
-        {nearbyPin && !activePin ? (
+        {settings.openButton && canOpenNearby ? (
           <button
             type="button"
             className="map-stick-open"
-            aria-label={nearbyPin.title ? `Open ${nearbyPin.title}` : 'Open photo'}
+            aria-label={openLabel}
             onClick={openNearbyPin}
           >
             Open
           </button>
         ) : null}
-        <Joystick onVector={handleVector} paused={Boolean(activePin)} />
+        <Joystick
+          onVector={handleVector}
+          paused={Boolean(activePin)}
+          showPad={settings.joystick}
+        />
       </div>
-      <div className="map-zoom">
-        <button type="button" aria-label="Zoom in" onClick={() => zoomBy(1)}>
-          +
-        </button>
-        <button type="button" aria-label="Zoom out" onClick={() => zoomBy(-1)}>
-          −
-        </button>
-      </div>
+      {settings.zoomButtons ? (
+        <div className="map-zoom">
+          <button type="button" aria-label="Zoom in" onClick={() => zoomBy(1)}>
+            +
+          </button>
+          <button type="button" aria-label="Zoom out" onClick={() => zoomBy(-1)}>
+            −
+          </button>
+        </div>
+      ) : null}
       {activePin ? <MapPinModal pin={activePin} onClose={closePin} /> : null}
     </div>
   )

@@ -27,7 +27,7 @@ function applyDeadzone(x, y) {
   return { x: (x / mag) * scaled, y: (y / mag) * scaled }
 }
 
-export default function Joystick({ onVector, paused }) {
+export default function Joystick({ onVector, paused, showPad = true }) {
   const padRef = useRef(null)
   const knobRef = useRef(null)
   const pointerIdRef = useRef(null)
@@ -128,23 +128,29 @@ export default function Joystick({ onVector, paused }) {
       emit()
     }
 
-    const pad = padRef.current
-    pad.addEventListener('pointerdown', onPointerDown)
-    pad.addEventListener('pointermove', onPointerMove)
-    pad.addEventListener('pointerup', releasePointer)
-    pad.addEventListener('pointercancel', releasePointer)
+    const pad = showPad ? padRef.current : null
+    if (!pad) {
+      pointerIdRef.current = null
+      stickRef.current = { x: 0, y: 0 }
+      emit()
+    } else {
+      pad.addEventListener('pointerdown', onPointerDown)
+      pad.addEventListener('pointermove', onPointerMove)
+      pad.addEventListener('pointerup', releasePointer)
+      pad.addEventListener('pointercancel', releasePointer)
+    }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
 
     return () => {
-      pad.removeEventListener('pointerdown', onPointerDown)
-      pad.removeEventListener('pointermove', onPointerMove)
-      pad.removeEventListener('pointerup', releasePointer)
-      pad.removeEventListener('pointercancel', releasePointer)
+      pad?.removeEventListener('pointerdown', onPointerDown)
+      pad?.removeEventListener('pointermove', onPointerMove)
+      pad?.removeEventListener('pointerup', releasePointer)
+      pad?.removeEventListener('pointercancel', releasePointer)
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
     }
-  }, [])
+  }, [showPad])
 
   useEffect(() => {
     if (!paused) return
@@ -154,6 +160,8 @@ export default function Joystick({ onVector, paused }) {
     if (knobRef.current) knobRef.current.style.transform = 'translate(0px, 0px)'
     onVectorRef.current({ x: 0, y: 0 })
   }, [paused])
+
+  if (!showPad) return null
 
   return (
     <div className="map-joystick" aria-hidden="true">
