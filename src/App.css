@@ -533,12 +533,9 @@
   position: absolute;
   z-index: 6;
   overflow: hidden;
-  padding: 2px;
-  background: #e8c25a;
+  padding: 3px;
+  background: #241808;
   border: 4px solid #241808;
-  box-shadow:
-    inset 0 0 0 2px #f4e2a0,
-    4px 4px 0 #140e06;
 }
 
 .museum-picture-photo {
