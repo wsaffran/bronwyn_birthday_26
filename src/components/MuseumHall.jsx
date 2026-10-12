@@ -11,9 +11,25 @@ import {
   museumFlorals,
 } from '../museumExhibits'
 
+const HOLD_DEADZONE_PX = 48
+const HOLD_REACH_RATIO = 0.34
 const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
 const floorSrc = `${import.meta.env.BASE_URL}museum/floor-pattern.png`
 const floralSrc = `${import.meta.env.BASE_URL}floral-linework-white.png`
+
+function vectorToward(dx, dy, reach) {
+  const mag = Math.hypot(dx, dy)
+  if (mag <= HOLD_DEADZONE_PX) return { x: 0, y: 0 }
+  const span = Math.max(1, reach - HOLD_DEADZONE_PX)
+  const scaled = Math.min(1, (mag - HOLD_DEADZONE_PX) / span)
+  return { x: (dx / mag) * scaled, y: (dy / mag) * scaled }
+}
+
+function eventHitsControl(event) {
+  const target = event.target
+  if (!(target instanceof Element)) return false
+  return Boolean(target.closest('button, a, input, textarea, .map-joystick, .map-modal'))
+}
 
 function PixelFrame({ src }) {
   const canvasRef = useRef(null)
@@ -121,6 +137,9 @@ export default function MuseumHall() {
   const shadowRef = useRef(null)
   const playerRef = useRef({ x: HALL_START.x, y: HALL_START.y })
   const vectorRef = useRef({ x: 0, y: 0 })
+  const holdRef = useRef(null)
+  const holdPointerRef = useRef(null)
+  const holdMarkerRef = useRef(null)
   const pausedRef = useRef(false)
   const nearbyIdRef = useRef(null)
   const [activeExhibit, setActiveExhibit] = useState(null)
@@ -129,7 +148,11 @@ export default function MuseumHall() {
 
   useEffect(() => {
     pausedRef.current = Boolean(activeExhibit)
-    if (activeExhibit) walkerRef.current?.classList.remove('is-walking')
+    if (!activeExhibit) return
+    walkerRef.current?.classList.remove('is-walking')
+    holdRef.current = null
+    holdPointerRef.current = null
+    holdMarkerRef.current?.classList.remove('is-active')
   }, [activeExhibit])
 
   const handleVector = useCallback((vector) => {
@@ -189,6 +212,59 @@ export default function MuseumHall() {
       setScreenReach((current) => (current === next ? current : next))
     }
 
+    const holdMarker = holdMarkerRef.current
+
+    function showHold(point) {
+      holdRef.current = point
+      if (!holdMarker) return
+      holdMarker.style.left = `${point.x}px`
+      holdMarker.style.top = `${point.y}px`
+      holdMarker.classList.add('is-active')
+    }
+
+    function clearHold(pointerId) {
+      if (pointerId != null && pointerId !== holdPointerRef.current) return
+      holdPointerRef.current = null
+      holdRef.current = null
+      holdMarker?.classList.remove('is-active')
+    }
+
+    function holdPoint(event) {
+      const box = hall.getBoundingClientRect()
+      return {
+        x: event.clientX - box.left,
+        y: event.clientY - box.top,
+      }
+    }
+
+    function onPointerDown(event) {
+      if (pausedRef.current || holdPointerRef.current !== null) return
+      if (event.button != null && event.button !== 0) return
+      if (eventHitsControl(event)) return
+      holdPointerRef.current = event.pointerId
+      try {
+        hall.setPointerCapture(event.pointerId)
+      } catch {
+        // Capture is unavailable until the browser is tracking this pointer.
+      }
+      showHold(holdPoint(event))
+      event.preventDefault()
+    }
+
+    function onPointerMove(event) {
+      if (event.pointerId !== holdPointerRef.current) return
+      showHold(holdPoint(event))
+    }
+
+    function onPointerUp(event) {
+      clearHold(event.pointerId)
+    }
+
+    hall.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', onPointerUp)
+    window.addEventListener('pointercancel', onPointerUp)
+
     placeScene()
     syncNearby()
     syncReach()
@@ -209,7 +285,14 @@ export default function MuseumHall() {
       if (cancelled) return
       const dt = Math.min(0.05, (now - lastTime) / 1000)
       lastTime = now
-      const vector = vectorRef.current
+      let vector = vectorRef.current
+      const hold = holdRef.current
+      if (hold) {
+        const originX = hall.clientWidth / 2
+        const originY = hall.clientHeight / 2 - STAGE_CENTER_Y + playerRef.current.y
+        const reach = Math.min(hall.clientWidth, hall.clientHeight) * HOLD_REACH_RATIO
+        vector = vectorToward(hold.x - originX, hold.y - originY, reach)
+      }
       const mag = Math.hypot(vector.x, vector.y)
 
       if (!pausedRef.current && mag > 0.01) {
@@ -235,6 +318,11 @@ export default function MuseumHall() {
       cancelAnimationFrame(rafId)
       resizeObserver.disconnect()
       window.removeEventListener('orientationchange', resize)
+      hall.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', onPointerUp)
+      window.removeEventListener('pointercancel', onPointerUp)
+      clearHold()
     }
   }, [])
 
@@ -317,6 +405,7 @@ export default function MuseumHall() {
           View
         </button>
       ) : null}
+      <div ref={holdMarkerRef} className="map-hold-target" />
       <Joystick onVector={handleVector} paused={Boolean(activeExhibit)} />
       {activePin ? <MapPinModal pin={activePin} onClose={closeExhibit} /> : null}
     </div>

@@ -9,9 +9,13 @@ import MapPinModal from './MapPinModal'
 import { MAP_MAX_ZOOM, MAP_MIN_ZOOM, MAP_START, mapPins } from '../mapPins'
 
 const SPEED_PX_PER_SEC = 180
+const HOLD_DEADZONE_PX = 48
+const HOLD_REACH_RATIO = 0.34
+const PIN_OPEN_ENTER_PX = 96
+const PIN_OPEN_EXIT_PX = 124
 const CLUSTER_PX = 30
 const TARGET_GAP_PX = 30
-const SPREAD_ENTER_PX = 155
+const SPREAD_ENTER_PX = 180
 const SPREAD_EXIT_PX = 180
 const MAX_SHIFT_PX = 30
 const SEPARATION_STEPS = 8
@@ -24,6 +28,20 @@ const pinIcon = L.divIcon({
   iconAnchor: [24, 56],
   html: `<img class="map-pin-shadow" src="${shadowUrl}" alt="" draggable="false" /><img class="map-pin-img" src="${pinImgUrl}" alt="" draggable="false" />`,
 })
+
+function vectorToward(dx, dy, reach) {
+  const mag = Math.hypot(dx, dy)
+  if (mag <= HOLD_DEADZONE_PX) return { x: 0, y: 0 }
+  const span = Math.max(1, reach - HOLD_DEADZONE_PX)
+  const scaled = Math.min(1, (mag - HOLD_DEADZONE_PX) / span)
+  return { x: (dx / mag) * scaled, y: (dy / mag) * scaled }
+}
+
+function eventHitsControl(event) {
+  const target = event.target
+  if (!(target instanceof Element)) return false
+  return Boolean(target.closest('button, a, input, textarea, .map-joystick, .leaflet-marker-icon'))
+}
 
 function separate(pos, mover, other, moverShare) {
   let dx = pos[other].x - pos[mover].x
@@ -88,13 +106,22 @@ export default function NYCMap() {
   const mapRef = useRef(null)
   const playerRef = useRef({ lat: MAP_START.lat, lng: MAP_START.lng })
   const vectorRef = useRef({ x: 0, y: 0 })
+  const holdRef = useRef(null)
+  const holdPointerRef = useRef(null)
+  const holdMarkerRef = useRef(null)
   const pausedRef = useRef(false)
   const walkerRef = useRef(null)
+  const nearbyIdRef = useRef(null)
   const [activePin, setActivePin] = useState(null)
+  const [nearbyPin, setNearbyPin] = useState(null)
 
   useEffect(() => {
     pausedRef.current = Boolean(activePin)
-    if (activePin) walkerRef.current?.classList.remove('is-walking')
+    if (!activePin) return
+    walkerRef.current?.classList.remove('is-walking')
+    holdRef.current = null
+    holdPointerRef.current = null
+    holdMarkerRef.current?.classList.remove('is-active')
   }, [activePin])
 
   const handleVector = useCallback((vector) => {
@@ -104,6 +131,11 @@ export default function NYCMap() {
   const closePin = useCallback(() => {
     setActivePin(null)
   }, [])
+
+  const openNearbyPin = useCallback(() => {
+    if (!nearbyPin) return
+    setActivePin(nearbyPin)
+  }, [nearbyPin])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -220,6 +252,85 @@ export default function NYCMap() {
       }
     }
 
+    function syncNearby(mapInstance) {
+      const player = mapInstance.latLngToContainerPoint(playerRef.current)
+      let nearest = null
+      let nearestDist = Infinity
+
+      for (let i = 0; i < markers.length; i++) {
+        const point = mapInstance.latLngToContainerPoint(markers[i].getLatLng())
+        const dist = Math.hypot(player.x - point.x, player.y - point.y)
+        if (dist >= nearestDist) continue
+        nearestDist = dist
+        nearest = mapPins[i]
+      }
+
+      const heldId = nearbyIdRef.current
+      let next = null
+      if (nearest && nearestDist <= PIN_OPEN_ENTER_PX) next = nearest
+      else if (heldId && nearest?.id === heldId && nearestDist <= PIN_OPEN_EXIT_PX) {
+        next = nearest
+      }
+
+      const nextId = next?.id ?? null
+      if (heldId === nextId) return
+      nearbyIdRef.current = nextId
+      setNearbyPin(next)
+    }
+
+    const holdMarker = holdMarkerRef.current
+
+    function showHold(point) {
+      holdRef.current = point
+      if (!holdMarker) return
+      holdMarker.style.left = `${point.x}px`
+      holdMarker.style.top = `${point.y}px`
+      holdMarker.classList.add('is-active')
+    }
+
+    function clearHold(pointerId) {
+      if (pointerId != null && pointerId !== holdPointerRef.current) return
+      holdPointerRef.current = null
+      holdRef.current = null
+      holdMarker?.classList.remove('is-active')
+    }
+
+    function holdPoint(event) {
+      const box = canvas.getBoundingClientRect()
+      return {
+        x: event.clientX - box.left,
+        y: event.clientY - box.top,
+      }
+    }
+
+    function onPointerDown(event) {
+      if (pausedRef.current || holdPointerRef.current !== null) return
+      if (event.button != null && event.button !== 0) return
+      if (eventHitsControl(event)) return
+      holdPointerRef.current = event.pointerId
+      try {
+        canvas.setPointerCapture(event.pointerId)
+      } catch {
+        // Capture is unavailable until the browser is tracking this pointer.
+      }
+      showHold(holdPoint(event))
+      event.preventDefault()
+    }
+
+    function onPointerMove(event) {
+      if (event.pointerId !== holdPointerRef.current) return
+      showHold(holdPoint(event))
+    }
+
+    function onPointerUp(event) {
+      clearHold(event.pointerId)
+    }
+
+    canvas.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', onPointerUp)
+    window.addEventListener('pointercancel', onPointerUp)
+
     mapRef.current = map
     playerRef.current = { lat: MAP_START.lat, lng: MAP_START.lng }
 
@@ -243,7 +354,14 @@ export default function NYCMap() {
       const dt = Math.min(0.05, (now - lastTime) / 1000)
       lastTime = now
       const mapInstance = mapRef.current
-      const vector = vectorRef.current
+      let vector = vectorRef.current
+      const hold = holdRef.current
+      if (hold) {
+        const dx = hold.x - canvas.clientWidth / 2
+        const dy = hold.y - canvas.clientHeight / 2
+        const reach = Math.min(canvas.clientWidth, canvas.clientHeight) * HOLD_REACH_RATIO
+        vector = vectorToward(dx, dy, reach)
+      }
 
       if (mapInstance && !pausedRef.current) {
         const mag = Math.hypot(vector.x, vector.y)
@@ -264,7 +382,10 @@ export default function NYCMap() {
         walkerRef.current?.classList.remove('is-walking')
       }
 
-      if (mapInstance) updatePins(mapInstance, dt)
+      if (mapInstance) {
+        updatePins(mapInstance, dt)
+        syncNearby(mapInstance)
+      }
 
       rafId = requestAnimationFrame(tick)
     }
@@ -276,6 +397,11 @@ export default function NYCMap() {
       cancelAnimationFrame(rafId)
       resizeObserver.disconnect()
       window.removeEventListener('orientationchange', resize)
+      canvas.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', onPointerUp)
+      window.removeEventListener('pointercancel', onPointerUp)
+      clearHold()
       map.remove()
       mapRef.current = null
     }
@@ -309,6 +435,7 @@ export default function NYCMap() {
         alt=""
         draggable={false}
       />
+      <div ref={holdMarkerRef} className="map-hold-target" />
       <button
         type="button"
         className="map-home"
@@ -317,7 +444,19 @@ export default function NYCMap() {
       >
         Home
       </button>
-      <Joystick onVector={handleVector} paused={Boolean(activePin)} />
+      <div className="map-stick-stack">
+        {nearbyPin && !activePin ? (
+          <button
+            type="button"
+            className="map-stick-open"
+            aria-label={nearbyPin.title ? `Open ${nearbyPin.title}` : 'Open photo'}
+            onClick={openNearbyPin}
+          >
+            Open
+          </button>
+        ) : null}
+        <Joystick onVector={handleVector} paused={Boolean(activePin)} />
+      </div>
       <div className="map-zoom">
         <button type="button" aria-label="Zoom in" onClick={() => zoomBy(1)}>
           +

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function MapPinModal({ pin, onClose }) {
   const closeRef = useRef(null)
@@ -21,7 +22,7 @@ export default function MapPinModal({ pin, onClose }) {
     }
   }, [onClose, pin.id])
 
-  return (
+  return createPortal(
     <div className="map-modal-backdrop" onClick={onClose}>
       <div
         className="map-modal"
@@ -38,17 +39,20 @@ export default function MapPinModal({ pin, onClose }) {
           </div>
         ) : null}
         {pin.photo ? (
-          <img
-            className="map-modal-photo"
-            src={`${import.meta.env.BASE_URL}${pin.photo}`}
-            alt=""
-          />
+          <div className="map-modal-photo-frame">
+            <img
+              className="map-modal-photo"
+              src={`${import.meta.env.BASE_URL}${pin.photo}`}
+              alt=""
+            />
+          </div>
         ) : null}
         {pin.body ? <p>{pin.body}</p> : null}
         <button ref={closeRef} type="button" onClick={onClose}>
           Close
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

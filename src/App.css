@@ -701,11 +701,8 @@
   }
 }
 
-.map-home {
-  position: absolute;
-  top: 0.7rem;
-  left: 0.7rem;
-  z-index: 850;
+.map-home,
+.map-stick-open {
   min-height: 44px;
   padding: 0 0.9rem;
   border: 1px solid rgb(255 255 255 / 45%);
@@ -715,12 +712,39 @@
   cursor: pointer;
 }
 
+.map-home {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  z-index: 850;
+}
+
+.map-stick-stack {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.7rem;
+  z-index: 600;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 0.45rem;
+  pointer-events: none;
+}
+
+.map-stick-open {
+  pointer-events: auto;
+}
+
 .map-joystick {
   position: absolute;
   right: 0.7rem;
   bottom: 0.7rem;
   z-index: 600;
   pointer-events: none;
+}
+
+.map-stick-stack .map-joystick {
+  position: static;
 }
 
 .map-joystick-pad {
@@ -748,6 +772,24 @@
   will-change: transform;
 }
 
+.map-hold-target {
+  position: absolute;
+  z-index: 540;
+  display: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -1.375rem 0 0 -1.375rem;
+  border: 2px solid rgb(255 255 255 / 92%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 18%);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 35%);
+  pointer-events: none;
+}
+
+.map-hold-target.is-active {
+  display: block;
+}
+
 .map-zoom {
   position: absolute;
   left: 0.7rem;
@@ -771,13 +813,11 @@
 }
 
 .map-modal-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 800;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background: rgb(0 0 0 / 45%);
+  background: #000;
 }
 
 .map-modal {
@@ -785,15 +825,20 @@
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
-  max-height: min(88%, 42rem);
-  padding: 1.1rem 1.15rem 1.2rem;
-  overflow-y: auto;
-  border-top: 1px solid rgb(255 255 255 / 28%);
-  background: #111;
+  height: 100%;
+  min-height: 0;
+  padding:
+    max(0.85rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(0.85rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  overflow: hidden;
+  background: #000;
   color: #fff;
 }
 
 .map-modal-heading {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -812,22 +857,33 @@
   color: rgb(255 255 255 / 72%);
 }
 
+.map-modal-photo-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .map-modal-photo {
   display: block;
-  width: auto;
   max-width: 100%;
-  max-height: min(52vh, 28rem);
+  max-height: 100%;
+  width: auto;
   height: auto;
-  align-self: center;
-  border-radius: 0.4rem;
+  object-fit: contain;
 }
 
 .map-modal p {
+  flex: 0 1 auto;
+  min-height: 0;
   margin: 0;
+  overflow-y: auto;
   line-height: 1.4;
 }
 
 .map-modal button {
+  flex: 0 0 auto;
   align-self: stretch;
   border: 1px solid rgb(255 255 255 / 45%);
   border-radius: 0.55rem;
