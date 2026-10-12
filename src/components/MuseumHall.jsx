@@ -41,36 +41,6 @@ function eventHitsControl(event) {
   return Boolean(target.closest('button, a, input, textarea, .map-joystick, .map-modal'))
 }
 
-function PixelFrame({ src }) {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    let cancelled = false
-    const image = new Image()
-    image.src = src
-    image.onload = () => {
-      if (cancelled) return
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const cols = 36
-      const rows = 26
-      canvas.width = cols
-      canvas.height = rows
-      const ctx = canvas.getContext('2d')
-      ctx.imageSmoothingEnabled = false
-      const scale = Math.max(cols / image.width, rows / image.height)
-      const dw = image.width * scale
-      const dh = image.height * scale
-      ctx.drawImage(image, (cols - dw) / 2, (rows - dh) / 2, dw, dh)
-    }
-    return () => {
-      cancelled = true
-    }
-  }, [src])
-
-  return <canvas ref={canvasRef} className="museum-picture-pixels" aria-hidden="true" />
-}
-
 function rectClearance(x, y, rect) {
   const left = x - rect.x
   const right = rect.x + rect.w - x
@@ -396,7 +366,12 @@ export default function MuseumHall() {
               marginLeft: -exhibit.w / 2,
             }}
           >
-            <PixelFrame src={`${import.meta.env.BASE_URL}${exhibit.photo}`} />
+            <img
+              className="museum-picture-photo"
+              src={`${import.meta.env.BASE_URL}${exhibit.photo}`}
+              alt=""
+              draggable={false}
+            />
           </div>
         ))}
         <div ref={shadowRef} className="museum-shadow" />

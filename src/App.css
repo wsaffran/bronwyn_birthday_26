@@ -532,6 +532,7 @@
 .museum-picture {
   position: absolute;
   z-index: 6;
+  overflow: hidden;
   padding: 2px;
   background: #e8c25a;
   border: 4px solid #241808;
@@ -540,11 +541,13 @@
     4px 4px 0 #140e06;
 }
 
-.museum-picture-pixels {
+.museum-picture-photo {
   display: block;
   width: 100%;
   height: 100%;
-  image-rendering: pixelated;
+  object-fit: cover;
+  filter: blur(5px);
+  transform: scale(1.14);
   pointer-events: none;
   user-select: none;
 }
