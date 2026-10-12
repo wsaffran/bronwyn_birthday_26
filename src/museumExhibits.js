@@ -5,20 +5,21 @@ const PICTURE_HEIGHT = 117
 const PICTURE_BOTTOM = 288
 
 // Desktop folder order, 1 through 13. Width and height are the saved file size.
+// Leave audio blank until the recording exists, for example 'museum/1.mp3'.
 const photos = [
-  { src: 'museum/1.jpg', w: 1600, h: 1532 },
-  { src: 'museum/2.jpg', w: 1260, h: 1600 },
-  { src: 'museum/3.jpg', w: 1200, h: 1600 },
-  { src: 'museum/4.jpg', w: 1200, h: 1600 },
-  { src: 'museum/5.jpg', w: 1600, h: 1587 },
-  { src: 'museum/6.jpg', w: 1200, h: 1600 },
-  { src: 'museum/7.jpg', w: 1200, h: 1600 },
-  { src: 'museum/8.jpg', w: 1200, h: 1600 },
-  { src: 'museum/9.jpg', w: 1200, h: 1600 },
-  { src: 'museum/10.jpg', w: 1200, h: 1600 },
-  { src: 'museum/11.jpg', w: 1200, h: 1600 },
-  { src: 'museum/12.jpg', w: 1200, h: 1600 },
-  { src: 'museum/13.jpg', w: 900, h: 1600 },
+  { src: 'museum/1.jpg', w: 1600, h: 1532, audio: '' },
+  { src: 'museum/2.jpg', w: 1260, h: 1600, audio: '' },
+  { src: 'museum/3.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/4.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/5.jpg', w: 1600, h: 1587, audio: '' },
+  { src: 'museum/6.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/7.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/8.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/9.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/10.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/11.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/12.jpg', w: 1200, h: 1600, audio: '' },
+  { src: 'museum/13.jpg', w: 900, h: 1600, audio: '' },
 ]
 
 const PICTURE_COUNT = photos.length
@@ -80,5 +81,6 @@ export const museumExhibits = pictureXs.map((x, index) => {
     title: `Picture ${index + 1}`,
     caption: '',
     photo: photo.src,
+    audio: photo.audio,
   }
 })

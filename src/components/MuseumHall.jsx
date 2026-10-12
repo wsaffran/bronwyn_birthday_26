@@ -315,6 +315,7 @@ export default function MuseumHall() {
         title: activeExhibit.title,
         photo: activeExhibit.photo,
         body: activeExhibit.caption,
+        audio: activeExhibit.audio,
       }
     : null
 
