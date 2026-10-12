@@ -29,7 +29,9 @@ const DEFAULT_MAP_SETTINGS = {
   zoomButtons: true,
   homeButton: true,
 }
-const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
+const walkerRightSrc = `${import.meta.env.BASE_URL}avatars/walker-right.png`
+const walkerLeftSrc = `${import.meta.env.BASE_URL}avatars/walker-left.png`
+const FACE_DEADZONE = 0.08
 const pinImgUrl = window.devicePixelRatio > 1 ? iconRetinaUrl : iconUrl
 
 const pinIcon = L.divIcon({
@@ -38,6 +40,14 @@ const pinIcon = L.divIcon({
   iconAnchor: [24, 56],
   html: `<img class="map-pin-shadow" src="${shadowUrl}" alt="" draggable="false" /><img class="map-pin-img" src="${pinImgUrl}" alt="" draggable="false" />`,
 })
+
+function faceWalker(faceRef, setFace, vector) {
+  if (Math.abs(vector.x) <= FACE_DEADZONE) return
+  const face = vector.x < 0 ? 'left' : 'right'
+  if (faceRef.current === face) return
+  faceRef.current = face
+  setFace(face)
+}
 
 function vectorToward(dx, dy, reach) {
   const mag = Math.hypot(dx, dy)
@@ -123,6 +133,8 @@ export default function NYCMap() {
   const holdMarkerRef = useRef(null)
   const pausedRef = useRef(false)
   const walkerRef = useRef(null)
+  const faceRef = useRef('right')
+  const [face, setFace] = useState('right')
   const nearbyIdRef = useRef(null)
   const markersRef = useRef([])
   const [settings, setSettings] = useState(DEFAULT_MAP_SETTINGS)
@@ -421,6 +433,7 @@ export default function NYCMap() {
         const mag = Math.hypot(vector.x, vector.y)
         walkerRef.current?.classList.toggle('is-walking', mag > 0.01)
         if (mag > 0.01) {
+          faceWalker(faceRef, setFace, vector)
           const center = mapInstance.latLngToContainerPoint(playerRef.current)
           const nextPoint = L.point(
             center.x + vector.x * SPEED_PX_PER_SEC * dt,
@@ -489,7 +502,7 @@ export default function NYCMap() {
       <img
         ref={walkerRef}
         className="map-walker"
-        src={walkerSrc}
+        src={face === 'left' ? walkerLeftSrc : walkerRightSrc}
         alt=""
         draggable={false}
       />

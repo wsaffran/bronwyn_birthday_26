@@ -13,9 +13,19 @@ import {
 
 const HOLD_DEADZONE_PX = 48
 const HOLD_REACH_RATIO = 0.34
-const walkerSrc = `${import.meta.env.BASE_URL}avatars/map-walker.png`
+const walkerRightSrc = `${import.meta.env.BASE_URL}avatars/walker-right.png`
+const walkerLeftSrc = `${import.meta.env.BASE_URL}avatars/walker-left.png`
+const FACE_DEADZONE = 0.08
 const floorSrc = `${import.meta.env.BASE_URL}museum/floor-pattern.png`
 const floralSrc = `${import.meta.env.BASE_URL}floral-linework-white.png`
+
+function faceWalker(faceRef, setFace, vector) {
+  if (Math.abs(vector.x) <= FACE_DEADZONE) return
+  const face = vector.x < 0 ? 'left' : 'right'
+  if (faceRef.current === face) return
+  faceRef.current = face
+  setFace(face)
+}
 
 function vectorToward(dx, dy, reach) {
   const mag = Math.hypot(dx, dy)
@@ -134,6 +144,8 @@ export default function MuseumHall() {
   const hallRef = useRef(null)
   const worldRef = useRef(null)
   const walkerRef = useRef(null)
+  const faceRef = useRef('right')
+  const [face, setFace] = useState('right')
   const shadowRef = useRef(null)
   const playerRef = useRef({ x: HALL_START.x, y: HALL_START.y })
   const vectorRef = useRef({ x: 0, y: 0 })
@@ -297,6 +309,7 @@ export default function MuseumHall() {
 
       if (!pausedRef.current && mag > 0.01) {
         walkerRef.current?.classList.add('is-walking')
+        faceWalker(faceRef, setFace, vector)
         playerRef.current = movePlayer(
           playerRef.current,
           vector.x * HALL_SPEED_PX_PER_SEC * dt,
@@ -390,7 +403,7 @@ export default function MuseumHall() {
         <img
           ref={walkerRef}
           className="map-walker"
-          src={walkerSrc}
+          src={face === 'left' ? walkerLeftSrc : walkerRightSrc}
           alt=""
           draggable={false}
         />
