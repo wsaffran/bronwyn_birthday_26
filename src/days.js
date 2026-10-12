@@ -94,17 +94,17 @@ export const days = [
   }),
   withOpenDate(october(13), {
     id: 3,
-    password: 'lilly of the valley',
-    passwordAliases: ['lily of the valley'],
+    password: 'lily of the valley',
+    passwordAliases: ['lilly of the valley'],
     title: 'Day 3',
-    kind: 'ipod',
+    kind: 'map',
   }),
   withOpenDate(october(14), {
     id: 4,
     password: 'anna sui',
     passwordAliases: ['ana sui'],
     title: 'Day 4',
-    kind: 'map',
+    kind: 'ipod',
   }),
   withOpenDate(october(15), {
     id: 5,
