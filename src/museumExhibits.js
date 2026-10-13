@@ -1,3 +1,6 @@
+// Flip this to true to show the speaker button on each museum photo.
+const MUSEUM_AUDIO_ENABLED = false
+
 const WALL_X = 128
 const SIDE_CLEARANCE = 256
 const PICTURE_SPACING = Math.round(512 * 0.7)
@@ -80,6 +83,6 @@ export const museumExhibits = pictureXs.map((x, index) => {
     title: photo.title,
     caption: '',
     photo: photo.src,
-    audio: photo.audio,
+    audio: MUSEUM_AUDIO_ENABLED ? photo.audio : null,
   }
 })
