@@ -88,6 +88,7 @@ export default function MapPinModal({ pin, onClose }) {
           <div className="map-modal-heading">
             {pin.title ? <h2 id="map-pin-title">{pin.title}</h2> : null}
             {pin.subtitle ? <p className="map-modal-subtitle">{pin.subtitle}</p> : null}
+            {pin.body ? <p className="map-modal-caption">{pin.body}</p> : null}
           </div>
         ) : null}
         {pin.photo ? (
@@ -99,7 +100,6 @@ export default function MapPinModal({ pin, onClose }) {
             />
           </div>
         ) : null}
-        {pin.body ? <p>{pin.body}</p> : null}
         <button ref={closeRef} type="button" onClick={onClose}>
           Close
         </button>

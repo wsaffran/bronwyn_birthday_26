@@ -1044,6 +1044,14 @@
   color: rgb(255 255 255 / 72%);
 }
 
+.map-modal p.map-modal-caption {
+  max-height: min(9.5rem, 32vh);
+  margin: 0.55rem 0 0;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
 .map-modal-photo-frame {
   flex: 1 1 auto;
   min-height: 0;

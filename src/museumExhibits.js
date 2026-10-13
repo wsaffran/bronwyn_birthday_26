@@ -1,4 +1,4 @@
-// Flip this to true to show the speaker button on each museum photo.
+// Flip this to true to play each recording instead of showing its description.
 const MUSEUM_AUDIO_ENABLED = false
 
 const WALL_X = 128
@@ -9,19 +9,121 @@ const PICTURE_BOTTOM = 288
 
 // Desktop folder order, 1 through 13. Width and height are the saved file size.
 const photos = [
-  { src: 'museum/1.jpg', w: 1600, h: 1532, audio: 'museum/1.m4a', title: 'R2D2 Hoji' },
-  { src: 'museum/2.jpg', w: 1260, h: 1600, audio: 'museum/2.m4a', title: 'Hoji’s Dinner Party' },
-  { src: 'museum/3.jpg', w: 1200, h: 1600, audio: 'museum/3.m4a', title: 'Sock on hairdryer' },
-  { src: 'museum/4.jpg', w: 1200, h: 1600, audio: 'museum/4.m4a', title: 'Spork in Popeye’s Apple Pie' },
-  { src: 'museum/5.jpg', w: 1600, h: 1587, audio: 'museum/5.m4a', title: 'Buckee’s Bokers On Shima-Enaga' },
-  { src: 'museum/6.jpg', w: 1200, h: 1600, audio: 'museum/6.m4a', title: 'One-Legged Pigeon' },
-  { src: 'museum/7.jpg', w: 1200, h: 1600, audio: 'museum/7.m4a', title: 'Cassava Chip Disaster of September 2026' },
-  { src: 'museum/8.jpg', w: 1200, h: 1600, audio: 'museum/8.m4a', title: 'Only 3 Cookies' },
-  { src: 'museum/9.jpg', w: 1200, h: 1600, audio: 'museum/9.m4a', title: 'Pure Embarrassment' },
-  { src: 'museum/10.jpg', w: 1200, h: 1600, audio: 'museum/10.m4a', title: 'Glass' },
-  { src: 'museum/11.jpg', w: 1200, h: 1600, audio: 'museum/11.m4a', title: 'Fun games to play with your boyfriend on computer' },
-  { src: 'museum/12.jpg', w: 1200, h: 1600, audio: 'museum/12.m4a', title: 'BRONWYN & WILL' },
-  { src: 'museum/13.jpg', w: 900, h: 1600, audio: 'museum/13.m4a', title: 'Crock in Door' },
+  {
+    src: 'museum/1.jpg',
+    w: 1600,
+    h: 1532,
+    audio: 'museum/1.m4a',
+    title: 'R2D2 Hoji',
+    caption:
+      'Now this is the first icon of our relationship. You can see here Hoji, in R2D2 formation. You sent me this image in March of 2026, if you could even believe that. This was when I found out that sweet picture of Hoji on your lock screen was all a lie, and that Hoji is actually silly as hell. We went on to have some really fun times together in your apartment.',
+  },
+  {
+    src: 'museum/2.jpg',
+    w: 1260,
+    h: 1600,
+    audio: 'museum/2.m4a',
+    title: 'Hoji’s Dinner Party',
+    caption:
+      'In May of 2026, you invited me to your apartment for the first time. Not only that, but I was meeting all of your friends and roommate for the first time too. This was a big step in our relationship and it meant so much to me. I was also so impressed by your drawing. I knew I was walking into something so special.',
+  },
+  {
+    src: 'museum/3.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/3.m4a',
+    title: 'Sock on hairdryer',
+    caption:
+      'In early July, this masterpiece was created out of necessity. I don’t even remember why we were doing this on a Monday morning at 8 AM, but this image lives in my head forever and was the inspiration for the cover of the first and most beautiful playlist I have ever received.',
+  },
+  {
+    src: 'museum/4.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/4.m4a',
+    title: 'Spork in Popeye’s Apple Pie',
+    caption:
+      'In July, we had a late night after Yumeki’s fashion event and needed some food really bad, so we went to Popeyes in Astoria and watched people walk around a city. I remember this disturbed you, but is now significant to our story.',
+  },
+  {
+    src: 'museum/5.jpg',
+    w: 1600,
+    h: 1587,
+    audio: 'museum/5.m4a',
+    title: 'Buckee’s Bokers On Shima-Enaga',
+    caption:
+      'I believe this happened before I went to Canada. And I know I will never wear those again.',
+  },
+  {
+    src: 'museum/6.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/6.m4a',
+    title: 'One-Legged Pigeon',
+    caption:
+      'We had a really special date in LIC this night. We got boba and went to the water, and walked past crazy parts of the city we never knew existed. But, amongst all that, on our walk this is one of the few pictures we have from that night.',
+  },
+  {
+    src: 'museum/7.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/7.m4a',
+    title: 'Cassava Chip Disaster of September 2026',
+    caption:
+      'Before we had even left NYC on our way to Rome, Bronwyn had made an absolute mess of the cassava chips we brought. Very few snacks made it to Rome that night in tact.',
+  },
+  {
+    src: 'museum/8.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/8.m4a',
+    title: 'Only 3 Cookies',
+    caption: 'It was not only 3 cookies this night.',
+  },
+  {
+    src: 'museum/9.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/9.m4a',
+    title: 'Pure Embarrassment',
+    caption:
+      'Not us having a family size box of kinder cakes on our lap while every flight attendant stood over us arguing with the crazy woman next to us.',
+  },
+  {
+    src: 'museum/10.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/10.m4a',
+    title: 'Glass',
+    caption:
+      'Stumbled upon this masterpiece on our way back from Thai food in Crown Heights. The waitress said your smile was pretty. And I agree.',
+  },
+  {
+    src: 'museum/11.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/11.m4a',
+    title: 'Fun games to play with your boyfriend on computer',
+    caption: 'This one speaks for itself. It is one of my favorites.',
+  },
+  {
+    src: 'museum/12.jpg',
+    w: 1200,
+    h: 1600,
+    audio: 'museum/12.m4a',
+    title: 'BRONWYN & WILL',
+    caption:
+      'Testing out pens for our drawing date after going to the Brooklyn museum. Got to leave our mark.',
+  },
+  {
+    src: 'museum/13.jpg',
+    w: 900,
+    h: 1600,
+    audio: 'museum/13.m4a',
+    title: 'Crock in Door',
+    caption:
+      'Necessary innovation to get fresh air in the apartment. I see nothing odd about this one at all.',
+  },
 ]
 
 const PICTURE_COUNT = photos.length
@@ -81,7 +183,7 @@ export const museumExhibits = pictureXs.map((x, index) => {
     w: Math.round(PICTURE_HEIGHT * (photo.w / photo.h)),
     h: PICTURE_HEIGHT,
     title: photo.title,
-    caption: '',
+    caption: MUSEUM_AUDIO_ENABLED ? '' : photo.caption,
     photo: photo.src,
     audio: MUSEUM_AUDIO_ENABLED ? photo.audio : null,
   }
