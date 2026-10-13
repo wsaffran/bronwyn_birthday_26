@@ -5,21 +5,20 @@ const PICTURE_HEIGHT = 117
 const PICTURE_BOTTOM = 288
 
 // Desktop folder order, 1 through 13. Width and height are the saved file size.
-// Leave audio blank until the recording exists, for example 'museum/1.mp3'.
 const photos = [
-  { src: 'museum/1.jpg', w: 1600, h: 1532, audio: '' },
-  { src: 'museum/2.jpg', w: 1260, h: 1600, audio: '' },
-  { src: 'museum/3.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/4.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/5.jpg', w: 1600, h: 1587, audio: '' },
-  { src: 'museum/6.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/7.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/8.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/9.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/10.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/11.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/12.jpg', w: 1200, h: 1600, audio: '' },
-  { src: 'museum/13.jpg', w: 900, h: 1600, audio: '' },
+  { src: 'museum/1.jpg', w: 1600, h: 1532, audio: 'museum/1.m4a', title: 'R2D2 Hoji' },
+  { src: 'museum/2.jpg', w: 1260, h: 1600, audio: 'museum/2.m4a', title: 'Hoji’s Dinner Party' },
+  { src: 'museum/3.jpg', w: 1200, h: 1600, audio: 'museum/3.m4a', title: 'Sock on hairdryer' },
+  { src: 'museum/4.jpg', w: 1200, h: 1600, audio: 'museum/4.m4a', title: 'Spork in Popeye’s Apple Pie' },
+  { src: 'museum/5.jpg', w: 1600, h: 1587, audio: 'museum/5.m4a', title: 'Buckee’s Bokers On Shima-Enaga' },
+  { src: 'museum/6.jpg', w: 1200, h: 1600, audio: 'museum/6.m4a', title: 'One-Legged Pigeon' },
+  { src: 'museum/7.jpg', w: 1200, h: 1600, audio: 'museum/7.m4a', title: 'Cassava Chip Disaster of September 2026' },
+  { src: 'museum/8.jpg', w: 1200, h: 1600, audio: 'museum/8.m4a', title: 'Only 3 Cookies' },
+  { src: 'museum/9.jpg', w: 1200, h: 1600, audio: 'museum/9.m4a', title: 'Pure Embarrassment' },
+  { src: 'museum/10.jpg', w: 1200, h: 1600, audio: 'museum/10.m4a', title: 'Glass' },
+  { src: 'museum/11.jpg', w: 1200, h: 1600, audio: 'museum/11.m4a', title: 'Fun games to play with your boyfriend on computer' },
+  { src: 'museum/12.jpg', w: 1200, h: 1600, audio: 'museum/12.m4a', title: 'BRONWYN & WILL' },
+  { src: 'museum/13.jpg', w: 900, h: 1600, audio: 'museum/13.m4a', title: 'Crock in Door' },
 ]
 
 const PICTURE_COUNT = photos.length
@@ -78,7 +77,7 @@ export const museumExhibits = pictureXs.map((x, index) => {
     y: pictureY,
     w: Math.round(PICTURE_HEIGHT * (photo.w / photo.h)),
     h: PICTURE_HEIGHT,
-    title: `Picture ${index + 1}`,
+    title: photo.title,
     caption: '',
     photo: photo.src,
     audio: photo.audio,
