@@ -16,7 +16,7 @@ const photos = [
     audio: 'museum/1.m4a',
     title: 'R2D2 Hoji',
     caption:
-      'Now this is the first icon of our relationship. You can see here Hoji, in R2D2 formation. You sent me this image in March of 2026, if you could even believe that. This was when I found out that sweet picture of Hoji on your lock screen was all a lie, and that Hoji is actually silly as hell. We went on to have some really fun times together in your apartment.',
+      'You can see here Hoji, in R2D2 formation. You sent me this image in March of 2026, if you could even believe that. This was when I found out that sweet picture of Hoji on your lock screen was all a lie, and that Hoji is actually silly as hell. We went on to have some really fun times together in your apartment.',
   },
   {
     src: 'museum/2.jpg',
