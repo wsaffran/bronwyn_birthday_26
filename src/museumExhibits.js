@@ -50,9 +50,9 @@ const photos = [
     w: 1600,
     h: 1587,
     audio: 'museum/5.m4a',
-    title: 'Buckee’s Bokers On Shima-Enaga',
+    title: 'Buc-ee’s Boxers on Shima-Enaga',
     caption:
-      'I believe this happened before I went to Canada. And I know I will never wear those again.',
+      'I believe this happened before I went to Canada. And I know I will never wear those boxers again.',
   },
   {
     src: 'museum/6.jpg',
