@@ -169,15 +169,17 @@ export default function CakeGift() {
         <img className="cake-candle" src="/cake/candle.png" alt="" />
         <img className="cake-smoke" src="/cake/smoke.png" alt="" />
       </div>
-      {phase === 'out' ? null : phase === 'listening' ? (
-        <p className="cake-prompt" aria-live="polite">
-          Blow
-        </p>
-      ) : (
-        <button type="button" className="cake-wish" onClick={onWish}>
-          {phase === 'denied' ? 'Blow it out' : 'Make a wish'}
-        </button>
-      )}
+      <div className="cake-controls">
+        {phase === 'out' ? null : phase === 'listening' ? (
+          <p className="cake-prompt" aria-live="polite">
+            Blow
+          </p>
+        ) : (
+          <button type="button" className="cake-wish" onClick={onWish}>
+            {phase === 'denied' ? 'Blow it out' : 'Make a wish'}
+          </button>
+        )}
+      </div>
     </div>
   )
 }

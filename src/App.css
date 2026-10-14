@@ -2116,19 +2116,34 @@
   opacity: 1;
 }
 
+.cake-controls {
+  position: relative;
+  flex: 0 0 2.75rem;
+  width: 100%;
+  height: 2.75rem;
+}
+
+.cake-prompt,
+.cake-wish {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 2.75rem;
+  margin: 0;
+  transform: translateX(-50%);
+}
+
 .cake-prompt {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
-  margin: 0;
   letter-spacing: 0.04em;
 }
 
 .cake-wish {
   appearance: none;
   width: min(16rem, 80%);
-  min-height: 2.75rem;
+  min-height: 0;
   padding: 0.2rem 1rem;
   border: 1px solid rgb(133, 133, 133);
   border-radius: 1rem;
