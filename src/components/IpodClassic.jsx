@@ -546,6 +546,9 @@ export default function IpodClassic() {
             ) : (
               <div className="ipod-now">
                 <p className="ipod-now-title">{track?.title ?? ''}</p>
+                {track?.description?.trim() ? (
+                  <p className="ipod-now-description">{track.description}</p>
+                ) : null}
                 {note ? <p className="ipod-now-note">{note}</p> : null}
                 <div
                   className="ipod-progress"

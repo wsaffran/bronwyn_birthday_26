@@ -1912,6 +1912,31 @@
   overflow: hidden;
 }
 
+.ipod-now:has(.ipod-now-description) {
+  justify-content: safe center;
+  gap: 0.28em;
+  padding: 0.2em 0.55em;
+}
+
+.ipod-now:has(.ipod-now-description) .ipod-now-title {
+  flex: 0 0 auto;
+  font-size: 0.95em;
+  -webkit-line-clamp: 2;
+}
+
+.ipod-now-description {
+  margin: 0;
+  flex: 0 0 auto;
+  font-size: 0.68em;
+  font-weight: 500;
+  line-height: 1.22;
+  color: #3c4d5e;
+}
+
+.ipod-now:has(.ipod-now-description) .ipod-progress {
+  margin-top: 0.08em;
+}
+
 .ipod-now-note {
   margin: 0;
   font-size: 0.68em;
