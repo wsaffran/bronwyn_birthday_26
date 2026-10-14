@@ -117,7 +117,7 @@ export const days = [
     id: 6,
     password: 'chiaki',
     title: 'Day 6',
-    kind: 'placeholder',
+    kind: 'cake',
   }),
 ]
 

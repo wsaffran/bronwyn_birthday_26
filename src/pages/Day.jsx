@@ -5,6 +5,7 @@ import NYCMap from '../components/NYCMap'
 import CatCollage from '../components/CatCollage'
 import IpodClassic from '../components/IpodClassic'
 import MemoryGame from '../components/MemoryGame'
+import CakeGift from '../components/CakeGift'
 import { useProgress } from '../progress'
 
 function MusicGift({ day }) {
@@ -67,6 +68,7 @@ function GiftBody({ day }) {
   if (day.kind === 'museum') return <MuseumHall />
   if (day.kind === 'ipod') return <IpodClassic />
   if (day.kind === 'memory') return <MemoryGame />
+  if (day.kind === 'cake') return <CakeGift />
   return <PlaceholderGift day={day} />
 }
 
@@ -137,12 +139,14 @@ export default function Day() {
   const museumPage = day.kind === 'museum' && unlocked
   const ipodPage = day.kind === 'ipod' && unlocked
   const memoryPage = day.kind === 'memory' && unlocked
+  const cakePage = day.kind === 'cake' && unlocked
 
   function frame(body) {
     if (mapPage) return <main className="page page-oct13">{body}</main>
     if (museumPage) return <main className="page page-museum">{body}</main>
     if (ipodPage) return <main className="page page-ipod">{body}</main>
     if (memoryPage) return <main className="page page-memory">{body}</main>
+    if (cakePage) return <main className="page page-cake">{body}</main>
     if (musicPage) return <main className="page page-music">{body}</main>
     if (!collage) return <main className="page">{body}</main>
     return (
@@ -159,7 +163,8 @@ export default function Day() {
       day.kind === 'museum' ||
       day.kind === 'ipod' ||
       day.kind === 'memory' ||
-      day.kind === 'music'
+      day.kind === 'music' ||
+      day.kind === 'cake'
     ) {
       return frame(<GiftBody day={day} />)
     }
