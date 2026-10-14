@@ -109,7 +109,8 @@ export default function IpodClassic() {
   const count = ipodMessages.length
   const rootRef = useRef(null)
   const wheelRef = useRef(null)
-  const audioRef = useRef(null)
+  const audioRefs = useRef(new Map())
+  const audioRefCallbacks = useRef(new Map())
   const dragRef = useRef(null)
   const pressTimer = useRef(0)
   const playToken = useRef(0)
@@ -135,9 +136,65 @@ export default function IpodClassic() {
     setScreen(next)
   }
 
+  function trackAt(index) {
+    if (index == null || index < 0 || index >= count) return null
+    return ipodMessages[index]
+  }
+
+  function audioFor(index) {
+    const track = trackAt(index)
+    if (!track) return null
+    return audioRefs.current.get(track.id) ?? null
+  }
+
+  function bindAudio(id) {
+    const callbacks = audioRefCallbacks.current
+    let callback = callbacks.get(id)
+    if (!callback) {
+      callback = (node) => {
+        if (node) audioRefs.current.set(id, node)
+        else audioRefs.current.delete(id)
+      }
+      callbacks.set(id, callback)
+    }
+    return callback
+  }
+
+  function pauseOthers(exceptId) {
+    for (const [id, audio] of audioRefs.current) {
+      if (id !== exceptId) audio.pause()
+    }
+  }
+
+  function rewind(audio) {
+    if (!audio || audio.readyState < 1 || audio.currentTime === 0) return
+    try {
+      audio.currentTime = 0
+    } catch {
+      // iOS throws when the file is not seekable yet.
+    }
+  }
+
+  function startPlayback(audio) {
+    const token = ++playToken.current
+    const pending = audio.play()
+    if (!pending) return
+    pending
+      .then(() => {
+        if (playToken.current === token) setPlaying(true)
+      })
+      .catch(() => {
+        if (playToken.current === token) setPlaying(false)
+      })
+  }
+
+  function fromCurrent(event) {
+    return event.currentTarget === audioFor(currentRef.current)
+  }
+
   function messageIsAudible() {
-    const audio = audioRef.current
-    return Boolean(audio && !audio.paused && audio.currentSrc && !missingRef.current)
+    const audio = audioFor(currentRef.current)
+    return Boolean(audio && !audio.paused && !missingRef.current)
   }
 
   function clickIfQuiet() {
@@ -154,7 +211,7 @@ export default function IpodClassic() {
   }
 
   function scrubBy(steps) {
-    const audio = audioRef.current
+    const audio = audioFor(currentRef.current)
     if (!audio || missingRef.current) return
     const length = audio.duration
     if (!Number.isFinite(length) || length <= 0) return
@@ -170,76 +227,57 @@ export default function IpodClassic() {
   }
 
   function loadTrack(index, autoplay) {
-    const track = ipodMessages[index]
-    const audio = audioRef.current
-    if (!track || !audio) return
+    const track = trackAt(index)
+    if (!track) return
+    const audio = audioRefs.current.get(track.id) ?? null
     currentRef.current = index
     setCurrentIndex(index)
     setUnplayable(false)
-    const url = resolveSrc(track.src)
-    if (!url) {
+    if (!resolveSrc(track.src) || !audio) {
       missingRef.current = true
       setMissing(true)
       setPlaying(false)
       setCurrentTime(0)
       setDuration(0)
       playToken.current += 1
-      audio.pause()
-      audio.removeAttribute('src')
-      delete audio.dataset.track
-      audio.load()
+      pauseOthers(null)
       return
     }
     missingRef.current = false
     setMissing(false)
-    if (audio.dataset.track !== track.id) {
-      audio.src = url
-      audio.dataset.track = track.id
-    } else {
-      audio.currentTime = 0
-    }
+    pauseOthers(track.id)
+    rewind(audio)
     setCurrentTime(0)
+    setDuration(Number.isFinite(audio.duration) ? audio.duration : 0)
     if (!autoplay) {
       playToken.current += 1
       audio.pause()
       setPlaying(false)
       return
     }
-    const token = ++playToken.current
-    const pending = audio.play()
-    if (!pending) return
-    pending
-      .then(() => {
-        if (playToken.current === token) setPlaying(true)
-      })
-      .catch(() => {
-        if (playToken.current === token) setPlaying(false)
-      })
+    startPlayback(audio)
   }
 
   function openHighlighted() {
     if (count === 0) return
     const index = selectedRef.current
-    const audio = audioRef.current
+    const audio = audioFor(index)
     setScreenTo('nowPlaying')
-    if (
-      currentRef.current === index &&
-      audio &&
-      !missingRef.current &&
-      audio.currentSrc
-    ) {
-      if (audio.paused) {
-        audio.play().catch(() => setPlaying(false))
-      }
+    if (!audio || !resolveSrc(ipodMessages[index].src)) {
+      loadTrack(index, false)
       return
     }
-    loadTrack(index, Boolean(resolveSrc(ipodMessages[index].src)))
+    if (currentRef.current === index) {
+      if (audio.paused) startPlayback(audio)
+      return
+    }
+    loadTrack(index, true)
   }
 
   function togglePlay() {
-    const audio = audioRef.current
-    if (!audio || missingRef.current || !audio.currentSrc) return
-    if (audio.paused) audio.play().catch(() => setPlaying(false))
+    const audio = audioFor(currentRef.current)
+    if (!audio || missingRef.current) return
+    if (audio.paused) startPlayback(audio)
     else audio.pause()
   }
 
@@ -258,7 +296,7 @@ export default function IpodClassic() {
   }
 
   function previous() {
-    const audio = audioRef.current
+    const audio = audioFor(currentRef.current)
     const index = currentRef.current
     if (index == null) {
       if (screenRef.current === 'menu') moveSelection(-1)
@@ -289,9 +327,10 @@ export default function IpodClassic() {
     loadTrack(index + 1, true)
   }
 
-  function onEnded() {
+  function onEnded(event) {
+    if (!fromCurrent(event)) return
     const index = currentRef.current
-    const audio = audioRef.current
+    const audio = event.currentTarget
     if (index == null) return
     if (index >= count - 1) {
       setCurrentTime(audio?.currentTime || audio?.duration || 0)
@@ -314,9 +353,9 @@ export default function IpodClassic() {
   }, [])
 
   useEffect(() => {
-    const audio = audioRef.current
+    const audios = audioRefs.current
     return () => {
-      audio?.pause()
+      for (const audio of audios.values()) audio.pause()
       window.clearTimeout(pressTimer.current)
     }
   }, [])
@@ -552,24 +591,42 @@ export default function IpodClassic() {
             onClick={() => actionsRef.current.center()}
           />
         </div>
-        <audio
-          ref={audioRef}
-          className="visually-hidden"
-          preload="none"
-          onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime || 0)}
-          onDurationChange={(event) => {
-            const next = event.currentTarget.duration
-            setDuration(Number.isFinite(next) ? next : 0)
-          }}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onEnded={onEnded}
-          onError={() => {
-            if (missingRef.current || !audioRef.current?.currentSrc) return
-            setUnplayable(true)
-            setPlaying(false)
-          }}
-        />
+        {ipodMessages.map((track) => {
+          const url = resolveSrc(track.src)
+          if (!url) return null
+          return (
+            <audio
+              key={track.id}
+              ref={bindAudio(track.id)}
+              src={url}
+              preload="metadata"
+              playsInline
+              onTimeUpdate={(event) => {
+                if (!fromCurrent(event)) return
+                setCurrentTime(event.currentTarget.currentTime || 0)
+              }}
+              onDurationChange={(event) => {
+                if (!fromCurrent(event)) return
+                const next = event.currentTarget.duration
+                setDuration(Number.isFinite(next) ? next : 0)
+              }}
+              onPlay={(event) => {
+                if (!fromCurrent(event)) return
+                setPlaying(true)
+              }}
+              onPause={(event) => {
+                if (!fromCurrent(event)) return
+                setPlaying(false)
+              }}
+              onEnded={onEnded}
+              onError={(event) => {
+                if (!fromCurrent(event) || missingRef.current) return
+                setUnplayable(true)
+                setPlaying(false)
+              }}
+            />
+          )
+        })}
       </section>
     </div>
   )

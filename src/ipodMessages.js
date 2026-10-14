@@ -3,9 +3,10 @@
 export const ipodMenuTitle = 'Messages'
 
 export const ipodMessages = [
-  { id: 'message-1', title: 'Message 1', src: '' },
-  { id: 'message-2', title: 'Message 2', src: '' },
-  { id: 'message-3', title: 'Message 3', src: '' },
-  { id: 'message-4', title: 'Message 4', src: '' },
-  { id: 'message-5', title: 'Message 5', src: '' },
+  { id: 'clarity', title: 'Clarity', src: 'ipod/clarity.m4a' },
+  { id: 'schubert', title: 'Schubert', src: 'ipod/schubert.m4a' },
+  { id: 'hw8-saffran', title: 'HW8_Saffran', src: 'ipod/hw8-saffran.m4a' },
+  { id: 'cherry-wine', title: 'Cherry Wine', src: 'ipod/cherry-wine.m4a' },
+  { id: 'yesterday', title: 'Yesterday', src: 'ipod/yesterday.m4a' },
+  { id: 'nutshell', title: 'Nutshell', src: 'ipod/nutshell.m4a' },
 ]
