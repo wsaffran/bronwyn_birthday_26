@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
-const CALIBRATE_MS = 400
-const HOT_FRAMES = 6
+const CALIBRATE_MS = 280
+const HOT_FRAMES = 4
 
 function readRms(analyser, samples) {
   analyser.getByteTimeDomainData(samples)
@@ -11,6 +11,20 @@ function readRms(analyser, samples) {
     sum += sample * sample
   }
   return Math.sqrt(sum / samples.length)
+}
+
+function wireMic(audio, stream) {
+  const source = audio.createMediaStreamSource(stream)
+  const analyser = audio.createAnalyser()
+  const mute = audio.createGain()
+  analyser.fftSize = 1024
+  analyser.smoothingTimeConstant = 0
+  mute.gain.value = 0
+  source.connect(analyser)
+  // Safari does not run the meter unless the graph reaches the speakers.
+  analyser.connect(mute)
+  mute.connect(audio.destination)
+  return analyser
 }
 
 export default function CakeGift() {
@@ -40,7 +54,7 @@ export default function CakeGift() {
 
   useEffect(() => stopListening, [])
 
-  function listen(analyser) {
+  function listen(analyser, audio) {
     const samples = new Uint8Array(analyser.fftSize)
     const started = performance.now()
     let baseline = null
@@ -48,15 +62,16 @@ export default function CakeGift() {
 
     function tick() {
       if (phaseRef.current === 'out') return
+      if (audio.state === 'suspended') audio.resume()
       const rms = readRms(analyser, samples)
       const elapsed = performance.now() - started
-      if (elapsed < CALIBRATE_MS && rms < 0.2) {
+      if (elapsed < CALIBRATE_MS && rms < 0.12) {
         baseline = baseline == null ? rms : baseline * 0.7 + rms * 0.3
         frameRef.current = requestAnimationFrame(tick)
         return
       }
-      if (baseline == null) baseline = 0.02
-      const threshold = Math.max(0.08, baseline * 4)
+      if (baseline == null) baseline = 0.01
+      const threshold = Math.max(0.04, baseline * 2.8)
       if (rms > threshold) hotFrames += 1
       else {
         hotFrames = 0
@@ -101,25 +116,39 @@ export default function CakeGift() {
     navigator.mediaDevices
       .getUserMedia({
         audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
+          echoCancellation: { ideal: false },
+          noiseSuppression: { ideal: false },
+          autoGainControl: { ideal: false },
         },
       })
-      .then((stream) => {
+      .then(async (stream) => {
         pendingRef.current = false
         if (phaseRef.current === 'out' || audioRef.current !== audio) {
           stream.getTracks().forEach((track) => track.stop())
           return
         }
         streamRef.current = stream
-        const source = audio.createMediaStreamSource(stream)
-        const analyser = audio.createAnalyser()
-        analyser.fftSize = 1024
-        source.connect(analyser)
+        try {
+          await audio.resume()
+        } catch {
+          // The context can still be running from the tap.
+        }
+        if (audio.state !== 'running' || audioRef.current !== audio) {
+          stream.getTracks().forEach((track) => track.stop())
+          streamRef.current = null
+          if (audioRef.current === audio) {
+            audio.close()
+            audioRef.current = null
+          }
+          if (phaseRef.current === 'out') return
+          phaseRef.current = 'denied'
+          setPhase('denied')
+          return
+        }
+        const analyser = wireMic(audio, stream)
         phaseRef.current = 'listening'
         setPhase('listening')
-        listen(analyser)
+        listen(analyser, audio)
       })
       .catch(() => {
         pendingRef.current = false
