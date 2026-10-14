@@ -13,6 +13,32 @@ function readRms(analyser, samples) {
   return Math.sqrt(sum / samples.length)
 }
 
+function requestMic() {
+  const preferred = {
+    audio: {
+      echoCancellation: { ideal: false },
+      noiseSuppression: { ideal: false },
+      autoGainControl: { ideal: false },
+    },
+  }
+  return navigator.mediaDevices.getUserMedia(preferred).catch((error) => {
+    const name = error?.name
+    if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
+      throw error
+    }
+    return navigator.mediaDevices.getUserMedia({ audio: true })
+  })
+}
+
+function unlock(audio) {
+  const buffer = audio.createBuffer(1, 1, audio.sampleRate)
+  const source = audio.createBufferSource()
+  source.buffer = buffer
+  source.connect(audio.destination)
+  source.start()
+  return audio.resume()
+}
+
 function wireMic(audio, stream) {
   const source = audio.createMediaStreamSource(stream)
   const analyser = audio.createAnalyser()
@@ -87,8 +113,23 @@ export default function CakeGift() {
     frameRef.current = requestAnimationFrame(tick)
   }
 
+  function startMeter() {
+    const audio = audioRef.current
+    const stream = streamRef.current
+    if (!audio || !stream || phaseRef.current === 'out' || phaseRef.current === 'listening') return
+    const analyser = wireMic(audio, stream)
+    phaseRef.current = 'listening'
+    setPhase('listening')
+    listen(analyser, audio)
+  }
+
   function onWish() {
     if (phaseRef.current === 'out' || phaseRef.current === 'listening' || pendingRef.current) return
+    if (phaseRef.current === 'armed') {
+      audioRef.current?.resume()
+      startMeter()
+      return
+    }
     if (phaseRef.current === 'denied') {
       blowOut()
       return
@@ -106,21 +147,14 @@ export default function CakeGift() {
     try {
       audio = new AudioContext()
       audioRef.current = audio
-      audio.resume()
+      unlock(audio)
     } catch {
       pendingRef.current = false
       phaseRef.current = 'denied'
       setPhase('denied')
       return
     }
-    navigator.mediaDevices
-      .getUserMedia({
-        audio: {
-          echoCancellation: { ideal: false },
-          noiseSuppression: { ideal: false },
-          autoGainControl: { ideal: false },
-        },
-      })
+    requestMic()
       .then(async (stream) => {
         pendingRef.current = false
         if (phaseRef.current === 'out' || audioRef.current !== audio) {
@@ -131,24 +165,21 @@ export default function CakeGift() {
         try {
           await audio.resume()
         } catch {
-          // The context can still be running from the tap.
+          // A later tap can resume the context on iOS.
         }
-        if (audio.state !== 'running' || audioRef.current !== audio) {
+        if (audioRef.current !== audio || phaseRef.current === 'out') {
           stream.getTracks().forEach((track) => track.stop())
           streamRef.current = null
-          if (audioRef.current === audio) {
-            audio.close()
-            audioRef.current = null
-          }
-          if (phaseRef.current === 'out') return
-          phaseRef.current = 'denied'
-          setPhase('denied')
           return
         }
-        const analyser = wireMic(audio, stream)
-        phaseRef.current = 'listening'
-        setPhase('listening')
-        listen(analyser, audio)
+        if (audio.state === 'running') {
+          startMeter()
+          return
+        }
+        // The permission sheet suspends audio on iPhone. Keep the mic
+        // open and resume it on the next tap, which is a user gesture.
+        phaseRef.current = 'armed'
+        setPhase('armed')
       })
       .catch(() => {
         pendingRef.current = false
@@ -168,17 +199,17 @@ export default function CakeGift() {
         <img className="cake-roll" src="/cake/roll.png" alt="Strawberry roll" />
         <img className="cake-candle" src="/cake/candle.png" alt="" />
         <img className="cake-smoke" src="/cake/smoke.png" alt="" />
-      </div>
-      <div className="cake-controls">
-        {phase === 'out' ? null : phase === 'listening' ? (
-          <p className="cake-prompt" aria-live="polite">
-            Blow
-          </p>
-        ) : (
-          <button type="button" className="cake-wish" onClick={onWish}>
-            {phase === 'denied' ? 'Blow it out' : 'Make a wish'}
-          </button>
-        )}
+        <div className="cake-controls">
+          {phase === 'out' ? null : phase === 'listening' ? (
+            <p className="cake-prompt" aria-live="polite">
+              Blow
+            </p>
+          ) : (
+            <button type="button" className="cake-wish" onClick={onWish}>
+              {phase === 'denied' ? 'Blow it out' : 'Make a wish'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -2047,10 +2047,8 @@
 
 .cake-gift {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.9rem;
   width: 100%;
   min-width: 0;
   min-height: 0;
@@ -2061,9 +2059,12 @@
   --base-y: 26%;
   --candle-h: 32%;
   --wick-y: calc(var(--base-y) - var(--candle-h) * 0.7);
+  --cake-max-h: calc(100svh - 18rem);
   position: relative;
-  width: fit-content;
+  width: min(32rem, 100%, calc(var(--cake-max-h) * 900 / 859));
+  aspect-ratio: 900 / 859;
   max-width: 100%;
+  flex: 0 0 auto;
 }
 
 .cake-roll,
@@ -2075,10 +2076,9 @@
 
 .cake-roll {
   display: block;
-  width: auto;
-  height: auto;
-  max-width: min(32rem, 100%);
-  max-height: calc(100svh - 16rem);
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .cake-candle {
@@ -2117,20 +2117,21 @@
 }
 
 .cake-controls {
-  position: relative;
-  flex: 0 0 2.75rem;
-  width: 100%;
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.9rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(16rem, 80%);
   height: 2.75rem;
+  transform: translateX(-50%);
 }
 
 .cake-prompt,
 .cake-wish {
-  position: absolute;
-  top: 0;
-  left: 50%;
   height: 2.75rem;
   margin: 0;
-  transform: translateX(-50%);
 }
 
 .cake-prompt {
@@ -2142,7 +2143,7 @@
 
 .cake-wish {
   appearance: none;
-  width: min(16rem, 80%);
+  width: 100%;
   min-height: 0;
   padding: 0.2rem 1rem;
   border: 1px solid rgb(133, 133, 133);
