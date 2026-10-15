@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import ConfettiExplosion from 'react-confetti-explosion'
 
 const CALIBRATE_MS = 280
 const HOT_FRAMES = 4
+const BURST_COLORS = ['#ffd36a', '#ff4d6d', '#fff6e8', '#ff8c42', '#7ad7ff']
 
 function readRms(analyser, samples) {
   analyser.getByteTimeDomainData(samples)
@@ -55,6 +57,7 @@ function wireMic(audio, stream) {
 
 export default function CakeGift() {
   const [phase, setPhase] = useState('idle')
+  const [burst, setBurst] = useState(false)
   const phaseRef = useRef('idle')
   const pendingRef = useRef(false)
   const streamRef = useRef(null)
@@ -71,11 +74,14 @@ export default function CakeGift() {
     audio?.close()
   }
 
+  const finishBurst = useCallback(() => setBurst(false), [])
+
   function blowOut() {
     stopListening()
     pendingRef.current = false
     phaseRef.current = 'out'
     setPhase('out')
+    setBurst(true)
   }
 
   useEffect(() => stopListening, [])
@@ -199,6 +205,20 @@ export default function CakeGift() {
         <img className="cake-roll" src="/cake/roll.png" alt="Strawberry roll" />
         <img className="cake-candle" src="/cake/candle.png" alt="" />
         <img className="cake-smoke" src="/cake/smoke.png" alt="" />
+        <div className="cake-burst" aria-hidden="true">
+          {burst ? (
+            <ConfettiExplosion
+              particleCount={120}
+              particleSize={12}
+              duration={2500}
+              force={0.6}
+              width={900}
+              colors={BURST_COLORS}
+              zIndex={4}
+              onComplete={finishBurst}
+            />
+          ) : null}
+        </div>
         <div className="cake-controls">
           {phase === 'out' ? null : phase === 'listening' ? (
             <p className="cake-prompt" aria-live="polite">

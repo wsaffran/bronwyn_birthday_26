@@ -2059,6 +2059,7 @@
   --base-y: 26%;
   --candle-h: 32%;
   --wick-y: calc(var(--base-y) - var(--candle-h) * 0.7);
+  --flame-y: calc(var(--base-y) - var(--candle-h) * 0.85);
   --cake-max-h: calc(100svh - 18rem);
   position: relative;
   width: min(32rem, 100%, calc(var(--cake-max-h) * 900 / 859));
@@ -2097,6 +2098,15 @@
   position: absolute;
   left: var(--candle-x);
   top: var(--wick-y);
+  pointer-events: none;
+}
+
+.cake-burst {
+  position: absolute;
+  left: var(--candle-x);
+  top: var(--flame-y);
+  width: 0;
+  height: 0;
   pointer-events: none;
 }
 
