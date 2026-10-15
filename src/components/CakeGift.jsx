@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import ConfettiExplosion from 'react-confetti-explosion'
 
 const CALIBRATE_MS = 280
-const HOT_FRAMES = 4
+const HOT_FRAMES = 2
 const BURST_COLORS = ['#ffd36a', '#ff4d6d', '#fff6e8', '#ff8c42', '#7ad7ff']
 
 function readRms(analyser, samples) {
@@ -103,7 +103,7 @@ export default function CakeGift() {
         return
       }
       if (baseline == null) baseline = 0.01
-      const threshold = Math.max(0.04, baseline * 2.8)
+      const threshold = Math.max(0.02, baseline * 1.8)
       if (rms > threshold) hotFrames += 1
       else {
         hotFrames = 0
