@@ -3,7 +3,29 @@ import ConfettiExplosion from 'react-confetti-explosion'
 
 const CALIBRATE_MS = 280
 const HOT_FRAMES = 2
+const SILENCE_RMS = 0.0008
+const IOS_RECOVER_MS = 1500
 const BURST_COLORS = ['#ffd36a', '#ff4d6d', '#fff6e8', '#ff8c42', '#7ad7ff']
+
+function isIos() {
+  const ua = navigator.userAgent
+  return (
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  )
+}
+
+function enableMicSession() {
+  if (!isIos()) return
+  const session = navigator.audioSession
+  if (!session) return
+  try {
+    // A silent Web Audio graph never starts the recorder, so blows read as silence.
+    session.type = 'play-and-record'
+  } catch {
+    // Older Safari exposes the object and then rejects the mode.
+  }
+}
 
 function readRms(analyser, samples) {
   analyser.getByteTimeDomainData(samples)
@@ -16,13 +38,17 @@ function readRms(analyser, samples) {
 }
 
 function requestMic() {
-  const preferred = {
-    audio: {
-      echoCancellation: { ideal: false },
-      noiseSuppression: { ideal: false },
-      autoGainControl: { ideal: false },
-    },
-  }
+  // iPhone routes a processed mic when the constraints stay simple. Forcing
+  // the raw path leaves the analyser on exact silence.
+  const preferred = isIos()
+    ? { audio: true }
+    : {
+        audio: {
+          echoCancellation: { ideal: false },
+          noiseSuppression: { ideal: false },
+          autoGainControl: { ideal: false },
+        },
+      }
   return navigator.mediaDevices.getUserMedia(preferred).catch((error) => {
     const name = error?.name
     if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
@@ -47,12 +73,20 @@ function wireMic(audio, stream) {
   const mute = audio.createGain()
   analyser.fftSize = 1024
   analyser.smoothingTimeConstant = 0
-  mute.gain.value = 0
+  // Exact zero lets iOS skip the graph. A tiny gain stays inaudible.
+  mute.gain.value = isIos() ? 0.0001 : 0
   source.connect(analyser)
   // Safari does not run the meter unless the graph reaches the speakers.
   analyser.connect(mute)
   mute.connect(audio.destination)
-  return analyser
+  return { source, analyser, mute }
+}
+
+function readFreq(analyser, samples) {
+  analyser.getByteFrequencyData(samples)
+  let sum = 0
+  for (let index = 2; index < samples.length; index += 1) sum += samples[index]
+  return sum / (samples.length - 2) / 255
 }
 
 export default function CakeGift() {
@@ -62,11 +96,29 @@ export default function CakeGift() {
   const pendingRef = useRef(false)
   const streamRef = useRef(null)
   const audioRef = useRef(null)
+  const graphRef = useRef(null)
   const frameRef = useRef(0)
+
+  function releaseGraph() {
+    const graph = graphRef.current
+    graphRef.current = null
+    if (!graph) return
+    try {
+      graph.source.disconnect()
+    } catch {
+      // Already disconnected.
+    }
+    try {
+      graph.mute.disconnect()
+    } catch {
+      // Already disconnected.
+    }
+  }
 
   function stopListening() {
     cancelAnimationFrame(frameRef.current)
     frameRef.current = 0
+    releaseGraph()
     streamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current = null
     const audio = audioRef.current
@@ -86,28 +138,47 @@ export default function CakeGift() {
 
   useEffect(() => stopListening, [])
 
+  function rearm() {
+    cancelAnimationFrame(frameRef.current)
+    frameRef.current = 0
+    releaseGraph()
+    if (phaseRef.current === 'out') return
+    phaseRef.current = 'armed'
+    setPhase('armed')
+  }
+
   function listen(analyser, audio) {
     const samples = new Uint8Array(analyser.fftSize)
+    const freqSamples = isIos() ? new Uint8Array(analyser.frequencyBinCount) : null
     const started = performance.now()
     let baseline = null
     let hotFrames = 0
+    let heard = false
 
     function tick() {
       if (phaseRef.current === 'out') return
-      if (audio.state === 'suspended') audio.resume()
+      if (audio.state === 'suspended' || audio.state === 'interrupted') audio.resume()
       const rms = readRms(analyser, samples)
+      const freq = freqSamples ? readFreq(analyser, freqSamples) : 0
+      // iOS sometimes leaves the waveform stuck at silence while frequency bins move.
+      const level = rms > SILENCE_RMS ? rms : Math.max(rms, freq)
+      if (rms > SILENCE_RMS || freq > SILENCE_RMS) heard = true
       const elapsed = performance.now() - started
-      if (elapsed < CALIBRATE_MS && rms < 0.12) {
-        baseline = baseline == null ? rms : baseline * 0.7 + rms * 0.3
+      if (!heard && freqSamples && elapsed > IOS_RECOVER_MS) {
+        rearm()
+        return
+      }
+      if (elapsed < CALIBRATE_MS && level < 0.12) {
+        baseline = baseline == null ? level : baseline * 0.7 + level * 0.3
         frameRef.current = requestAnimationFrame(tick)
         return
       }
       if (baseline == null) baseline = 0.01
       const threshold = Math.max(0.02, baseline * 1.8)
-      if (rms > threshold) hotFrames += 1
+      if (level > threshold) hotFrames += 1
       else {
         hotFrames = 0
-        baseline = baseline * 0.98 + rms * 0.02
+        baseline = baseline * 0.98 + level * 0.02
       }
       if (hotFrames >= HOT_FRAMES) {
         blowOut()
@@ -123,16 +194,21 @@ export default function CakeGift() {
     const audio = audioRef.current
     const stream = streamRef.current
     if (!audio || !stream || phaseRef.current === 'out' || phaseRef.current === 'listening') return
-    const analyser = wireMic(audio, stream)
+    releaseGraph()
+    const graph = wireMic(audio, stream)
+    // Safari drops the mic if these nodes are left for garbage collection.
+    graphRef.current = graph
     phaseRef.current = 'listening'
     setPhase('listening')
-    listen(analyser, audio)
+    listen(graph.analyser, audio)
   }
 
   function onWish() {
     if (phaseRef.current === 'out' || phaseRef.current === 'listening' || pendingRef.current) return
     if (phaseRef.current === 'armed') {
-      audioRef.current?.resume()
+      enableMicSession()
+      const audio = audioRef.current
+      if (audio && audio.state !== 'running') audio.resume()
       startMeter()
       return
     }
@@ -149,6 +225,7 @@ export default function CakeGift() {
     }
 
     pendingRef.current = true
+    enableMicSession()
     let audio
     try {
       audio = new AudioContext()
@@ -178,12 +255,13 @@ export default function CakeGift() {
           streamRef.current = null
           return
         }
-        if (audio.state === 'running') {
+        const gestureAlive = !navigator.userActivation || navigator.userActivation.isActive
+        if (audio.state === 'running' && (gestureAlive || !isIos())) {
           startMeter()
           return
         }
-        // The permission sheet suspends audio on iPhone. Keep the mic
-        // open and resume it on the next tap, which is a user gesture.
+        // The permission sheet ends the tap on iPhone, and a meter started
+        // after that stays silent. The next tap is a fresh gesture.
         phaseRef.current = 'armed'
         setPhase('armed')
       })
@@ -226,7 +304,7 @@ export default function CakeGift() {
             </p>
           ) : (
             <button type="button" className="cake-wish" onClick={onWish}>
-              {phase === 'denied' ? 'Blow it out' : 'Make a wish'}
+              {phase === 'denied' ? 'Blow it out' : phase === 'armed' ? 'Blow' : 'Make a wish'}
             </button>
           )}
         </div>
